@@ -1,23 +1,19 @@
-Presto with Kubernetes
-======================
+# TPC-DS workload with Presto on OpenShift
 
-Code snippets and notes on running Presto with Kubernetes.
+## Deploy a Presto Cluster
 
-Blogs related to this repo:
-* [Presto with Kubernetes and S3 — Deployment](https://medium.com/swlh/presto-with-kubernetes-and-s3-deployment-4e262849244a)
-* [Presto with Kubernetes and S3 — Benchmark](https://medium.com/swlh/presto-with-kubernetes-and-s3-benchmark-d16d047e033)
+Presto operator
 
-# Quick Start -- Deploy a Presto Cluster
-The below deploys a Presto cluster in the `warehouse` name space.
-Create config maps.
-```
-./create-configmap.sh
+## Create a Presto CLI container image
+
+From the **docker** folder, edit the file `build-cli.sh` to change the repo name and optionally the version you want to buid, then run:
+
+```bash
+./build-cli.sh
 ```
 
-Deploy a Presto cluster.
-```
-kubectl create -f presto-server.yaml
-```
+## TBD
 
-Credits:
-Some code are based on [Joshua Robison](https://github.com/joshuarobinson)'s awesome work.
+### Credits
+
+Original code by Yifeng Jiang available [here](https://github.com/uprush/kube-presto/tree/master/benchmark).

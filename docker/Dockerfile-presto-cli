@@ -1,7 +1,7 @@
 FROM openjdk:11-slim
 
 # Variables that define which software versions to install.
-ARG PRESTO_VERSION=330
+ARG PRESTO_VERSION=338
 ENV JAVA_HOME=/usr/local/openjdk-11
 
 # Install dependencies
