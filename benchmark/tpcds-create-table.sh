@@ -3,10 +3,8 @@
 # Create TPC-DS schema and tables in Presto.
 #
 
-source ./tpcds-env.sh
-
 sql_exec() {
-    kubectl exec -it pod/presto-cli /opt/presto-cli -- --server presto.warehouse:8080 --catalog hive --execute "$1"
+    /opt/presto-cli --server $PRESTO_SERVER --catalog hive --execute "$1"
 }
 
 echo "Drop existing schema: $SCHEMA"

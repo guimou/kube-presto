@@ -4,14 +4,12 @@
 # This also creates schema and tables.
 #
 
-source ./tpcds-env.sh
-
 sql_exec() {
-    kubectl exec -it pod/presto-cli /opt/presto-cli -- --server presto.warehouse:8080 --catalog hive --execute "$1"
+    /opt/presto-cli --server $PRESTO_SERVER --catalog hive --execute "$1"
 }
 
 echo "`date`: Drop existing schema: $SCHEMA"
-declare TABLES="$(sql_exec "SHOW TABLES FROM tpcds.sf1000;" | sed s/\"//g | tr -d '\r')"
+declare TABLES="$(sql_exec "SHOW TABLES FROM tpcds.sf$SCALE;" | sed s/\"//g | tr -d '\r')"
 # clean up from any previous runs.
 for tab in $TABLES; do
     echo $tab
@@ -25,14 +23,15 @@ echo "`date`: Create schema under location: $LOCATION"
 sql_exec "CREATE SCHEMA $SCHEMA WITH (location = '$LOCATION');"
 
 # Create tables, generate data
-echo "`date`: Generating data..."
+echo "`date`: Generating tpcds.sf$SCALE data..."
 
 START=`date +%s`
 for tab in $TABLES; do
-    sql_exec "CREATE TABLE $SCHEMA.$tab WITH (format = 'orc') AS SELECT * FROM tpcds.sf$SCALE.$tab;"
+    sql_exec "CREATE TABLE $SCHEMA.$tab WITH (format = 'PARQUET') AS SELECT * FROM tpcds.sf$SCALE.$tab;"
 done
 
 END=`date +%s`
 RUNTIME=$((END-START))
-echo "`date`: Finished data generation. Time taken: $RUNTIME s"
+echo "`date`: Finished tpcds.sf$SCALE data generation. Time taken: $RUNTIME s"
+echo "`date`: Finished tpcds.sf$SCALE data generation. Time taken: $RUNTIME s" > /data/generate_data_sf$SCALE
 
