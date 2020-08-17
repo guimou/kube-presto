@@ -37,7 +37,11 @@ echo "`date`: Generating tpcds.sf$SCALE data..." | tee /dev/fd/3
 START=`date +%s`
 for tab in $TABLES; do
     echo "Creating and populating table: $tab"
+    START_TABLE=`date +%s`
     sql_exec "CREATE TABLE $SCHEMA.$tab WITH (format = 'PARQUET') AS SELECT * FROM tpcds.sf$SCALE.$tab;"
+    END_TABLE=`date +%s`
+    RUNTIME_TABLE=$((END_TABLE-START_TABLE))
+    echo "`date`: Finished $tab data generation. Time taken: $RUNTIME s" | tee /dev/fd/3
 done
 END=`date +%s`
 RUNTIME=$((END-START))
