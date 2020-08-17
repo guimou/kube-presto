@@ -1,13 +1,13 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: 03-tpcds-create-table-sf100
+  name: 11-tpcds-benchmark-sf1
   namespace: presto
 spec:
   selector: {}
   template:
     metadata:
-      name: 03-tpcds-create-table-sf100
+      name: 01-tpcds-create-table-sf1
     spec:
       volumes:
         - name: shared-vol
@@ -16,13 +16,14 @@ spec:
       containers:
         - name: presto-cli
           image: 'quay.io/guimou/prestosql-cli:338'
+          imagePullPolicy: Always
           command: [/opt/tpcds-gen.sh]
           volumeMounts:
             - name: shared-vol
               mountPath: /data
           env:
             - name: SCALE
-              value: '100'
+              value: '1'
             - name: PRESTO_SERVER
               value: 'presto-service:8080'
             - name: FORMAT

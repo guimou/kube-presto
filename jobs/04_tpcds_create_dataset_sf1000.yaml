@@ -1,13 +1,13 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: 02-tpcds-create-table-sf10
+  name: 03-tpcds-create-dataset-sf1000
   namespace: presto
 spec:
   selector: {}
   template:
     metadata:
-      name: 02-tpcds-create-table-sf10
+      name: 03-tpcds-create-dataset-sf1000
     spec:
       volumes:
         - name: shared-vol
@@ -22,7 +22,7 @@ spec:
               mountPath: /data
           env:
             - name: SCALE
-              value: '10'
+              value: '1000'
             - name: PRESTO_SERVER
               value: 'presto-service:8080'
             - name: FORMAT

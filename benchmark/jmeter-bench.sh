@@ -1,7 +1,7 @@
 #!/bin/bash
 
 JMETER_HOME=/opt/apache-jmeter-5.2.1
-PRESTO_VER=330
+PRESTO_VER=338
 JAVA_HOME=/usr/jdk64/jdk-11.0.6
 
 # Download jdbc driver
