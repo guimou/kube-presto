@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: 03-tpcds-create-table-sf1000
+  namespace: presto
+spec:
+  selector: {}
+  template:
+    metadata:
+      name: 03-tpcds-create-table-sf1000
+    spec:
+      volumes:
+        - name: shared-vol
+          persistentVolumeClaim:
+            claimName: presto-data-share
+      containers:
+        - name: presto-cli
+          image: 'quay.io/guimou/prestosql-cli:338'
+          command: [/opt/tpcds-gen.sh]
+          volumeMounts:
+            - name: shared-vol
+              mountPath: /data
+          env:
+            - name: SCALE
+              value: '1000'
+            - name: PRESTO_SERVER
+              value: 'presto-service:8080'
+            - name: FORMAT
+              value: 'parquet'
+            - name: SCHEMA
+              value: 'tpcds_sf$(SCALE)_parquet'
+            - name: LOCATION
+              value: 's3://presto-test-bucket/sf$(SCALE)/tpcds_sf$(SCALE)_parquet.db/'       
+      restartPolicy: Never

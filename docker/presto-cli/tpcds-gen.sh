@@ -4,34 +4,41 @@
 # This also creates schema and tables.
 #
 
+# Presto CLI call function
 sql_exec() {
     /opt/presto-cli --server $PRESTO_SERVER --catalog hive --execute "$1"
 }
 
-echo "`date`: Drop existing schema: $SCHEMA"
+# Create log dir and file
+echo "`date`: Create log dir and file"
+mkdir -p /data/generate_data_sf$SCALE
+LOG_FILE="/data/generate_data_sf$SCALE/$(date "+%Y-%m-%d_%H:%M:%S").log"
+touch $LOG_FILE
+
+# Redirect echo commands to both console and log file
+exec 3>&1 1>>$LOG_FILE 2>&1
+
+# Drop previously existing schema
+echo "`date`: Drop existing schema: $SCHEMA" | tee /dev/fd/3
 declare TABLES="$(sql_exec "SHOW TABLES FROM tpcds.sf$SCALE;" | sed s/\"//g | tr -d '\r')"
 # clean up from any previous runs.
 for tab in $TABLES; do
-    echo $tab
+    echo "Dropping table: $tab" | tee /dev/fd/3
     sql_exec "DROP TABLE IF EXISTS $SCHEMA.$tab;"
 done
 sql_exec "DROP SCHEMA IF EXISTS $SCHEMA;"
 
 # Create schema 
-LOCATION="s3a://deephub/warehouse/$SCHEMA.db/"
-echo "`date`: Create schema under location: $LOCATION"
+echo "`date`: Create schema under location: $LOCATION" | tee /dev/fd/3
 sql_exec "CREATE SCHEMA $SCHEMA WITH (location = '$LOCATION');"
 
-# Create tables, generate data
-echo "`date`: Generating tpcds.sf$SCALE data..."
-
+# Create tables and generate data
+echo "`date`: Generating tpcds.sf$SCALE data..." | tee /dev/fd/3
 START=`date +%s`
 for tab in $TABLES; do
+    echo "Creating and populating table: $tab"
     sql_exec "CREATE TABLE $SCHEMA.$tab WITH (format = 'PARQUET') AS SELECT * FROM tpcds.sf$SCALE.$tab;"
 done
-
 END=`date +%s`
 RUNTIME=$((END-START))
-echo "`date`: Finished tpcds.sf$SCALE data generation. Time taken: $RUNTIME s"
-echo "`date`: Finished tpcds.sf$SCALE data generation. Time taken: $RUNTIME s" > /data/generate_data_sf$SCALE
-
+echo "`date`: Finished tpcds.sf$SCALE data generation. Time taken: $RUNTIME s" | tee /dev/fd/3
