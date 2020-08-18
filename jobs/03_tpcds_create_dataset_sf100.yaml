@@ -15,7 +15,8 @@ spec:
             claimName: presto-data-share
       containers:
         - name: presto-cli
-          image: 'quay.io/guimou/prestosql-cli:338'
+          image: 'quay.io/guimou/tpcds-gen:338'
+          imagePullPolicy: Always
           command: [/opt/tpcds-gen.sh]
           volumeMounts:
             - name: shared-vol
@@ -28,7 +29,7 @@ spec:
             - name: FORMAT
               value: 'parquet'
             - name: SCHEMA
-              value: 'tpcds_sf$(SCALE)_parquet'
+              value: 'tpcds_sf$(SCALE)_$(FORMAT)'
             - name: LOCATION
               value: 's3://presto-test-bucket/sf$(SCALE)/tpcds_sf$(SCALE)_parquet.db/'       
       restartPolicy: Never
