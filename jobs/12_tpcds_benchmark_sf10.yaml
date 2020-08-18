@@ -1,13 +1,13 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: 11-tpcds-benchmark-sf1
+  name: 12-tpcds-benchmark-sf10
   namespace: presto
 spec:
   selector: {}
   template:
     metadata:
-      name: 11-tpcds-benchmark-sf1
+      name: 12-tpcds-benchmark-sf10
     spec:
       volumes:
         - name: shared-vol
@@ -23,7 +23,7 @@ spec:
               mountPath: /data
           env:
             - name: SCALE
-              value: '1'
+              value: '10'
             - name: PRESTO_SERVER
               value: 'presto-service:8080'
             - name: FORMAT

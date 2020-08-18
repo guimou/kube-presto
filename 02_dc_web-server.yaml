@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  name: webserver
+  namespace: presto
+spec:
+  selector:
+    name: webserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: webserver
+    spec:
+      containers:
+        - name: webserver
+          image: centos/httpd-24-centos7:latest
+          resources:
+            requests:
+              cpu: 500m
+              memory: 500M
+            limits:
+              cpu: 1
+              memory: 1G
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: shared-vol
+              mountPath: /var/www/html
+              readOnly: true
+      volumes:
+        - name: shared-vol
+          persistentVolumeClaim:
+            claimName: presto-data-share
