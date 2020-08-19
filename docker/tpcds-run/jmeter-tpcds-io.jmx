@@ -65,7 +65,7 @@
       order by dt.d_year
               ,sum_agg desc
               ,brand_id
-      limit 100;
+      limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -96,7 +96,7 @@
            d_year = 1998 
      group by i_item_id
      order by i_item_id
-     limit 100;
+     limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -139,7 +139,7 @@
               ,i_item_id
               ,i_item_desc
               ,revenueratio
-      limit 100;
+      limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -201,7 +201,6 @@
        and customer_address.ca_state in (&apos;WI&apos;, &apos;MO&apos;, &apos;WV&apos;)
        and store_sales.ss_net_profit between 50 and 250  
           ))
-     ;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -231,7 +230,7 @@
         and date_dim.d_qoy = 2 and date_dim.d_year = 2000
       group by ca_zip
       order by ca_zip
-      limit 100;
+      limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -286,7 +285,7 @@
       order by i_item_id
               ,i_item_desc
               ,s_state
-     limit 100;
+     limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -321,7 +320,7 @@
                   ,i_brand_id
                   ,i_manufact_id
                   ,i_manufact
-         limit 100 ;
+         limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -360,7 +359,7 @@
               ,i_item_id
               ,i_item_desc
               ,revenueratio
-     limit 100;
+     limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -399,7 +398,7 @@
                         end) between 2.0/3.0 and 3.0/2.0
             order by w_warehouse_name
                     ,i_item_id
-            limit 100;
+            limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -410,7 +409,7 @@
           <stringProp name="resultSetHandler">Store as String</stringProp>
         </JDBCSampler>
         <hashTree />
-        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q24" enabled="true">
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q24-1" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
           <stringProp name="query">with ssales as
@@ -460,9 +459,20 @@
                     ,s_store_name
             having sum(netpaid) &gt; (select 0.05*avg(netpaid)
                                              from ssales)
-            ;
-            
-            with ssales as
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q24-2" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">with ssales as
             (select c_last_name
                   ,c_first_name
                   ,s_store_name
@@ -509,7 +519,6 @@
                     ,s_store_name
             having sum(netpaid) &gt; (select 0.05*avg(netpaid)
                                        from ssales)
-            ;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -567,7 +576,7 @@
             ,i_item_desc
             ,s_store_id
             ,s_store_name
-            limit 100;
+            limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -598,7 +607,7 @@
            d_year = 1998
      group by i_item_id
      order by i_item_id
-     limit 100;
+     limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -631,7 +640,7 @@
      group by i_item_id, s_state
      order by i_item_id
              ,s_state
-     limit 100;
+     limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -694,7 +703,7 @@
                     and (ss_list_price between 28 and 28+10
                       or ss_coupon_amt between 2513 and 2513+1000
                       or ss_wholesale_cost between 42 and 42+20)) B6
-            limit 100;
+            limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -751,7 +760,7 @@
           ,i_item_desc
           ,s_store_id
           ,s_store_name
-        limit 100;
+        limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -813,7 +822,7 @@
                   &gt; case when ss1.store_sales &gt; 0 then ss2.store_sales/ss1.store_sales else null end
                and case when ws2.web_sales &gt; 0 then ws3.web_sales/ws2.web_sales else null end
                   &gt; case when ss2.store_sales &gt; 0 then ss3.store_sales/ss2.store_sales else null end
-            order by web_q1_q2_increase;
+            order by web_q1_q2_increase
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -844,7 +853,7 @@
                                     GROUP BY cs2.cs_item_sk) tmp1
             ON (i.i_item_sk = tmp1.cs_item_sk)
             WHERE i.i_manufact_id = 436 and
-                           cs1.cs_ext_discount_amt &gt; tmp1.avg_cs_ext_discount_amt;            
+                           cs1.cs_ext_discount_amt &gt; tmp1.avg_cs_ext_discount_amt           
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -885,7 +894,7 @@
          group by ss_ticket_number,ss_customer_sk) dn,customer
          where dn.ss_customer_sk = customer.c_customer_sk
            and cnt between 15 and 20
-         order by c_last_name,c_first_name,c_salutation,c_preferred_cust_flag desc;     
+         order by c_last_name,c_first_name,c_salutation,c_preferred_cust_flag desc     
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -923,7 +932,6 @@
               and inv2.d_moy=3+1
             order by inv1.w_warehouse_sk,inv1.i_item_sk,inv1.d_moy,inv1.mean,inv1.cov
                     ,inv2.d_moy,inv2.mean, inv2.cov
-            ;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -960,7 +968,7 @@
           group by
              w_state,i_item_id
           order by w_state,i_item_id
-         limit 100;
+         limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -992,7 +1000,7 @@
           order by       s desc,dt.d_year
               ,item.i_category_id
               ,item.i_category
-         limit 100 ;
+         limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1021,7 +1029,7 @@
            d_year = 1998
      group by s_store_name, s_store_id
      order by s_store_name, s_store_id,sun_sales,mon_sales,tue_sales,wed_sales,thu_sales,fri_sales,sat_sales
-     limit 100;
+     limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1051,7 +1059,7 @@
                    and d_qoy = 2 and d_year = 2000
             group by ca_zip, ca_county
             order by ca_zip, ca_county
-            limit 100;
+            limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1096,7 +1104,7 @@
                ,ca_city
                ,bought_city
                ,ss_ticket_number
-       limit 100;
+       limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1173,7 +1181,6 @@
              and ss_net_profit between 50 and 25000 
              )
             )
-           ;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1310,7 +1317,7 @@
             store.currency_rank &lt;= 10
             )
             order by 1,4,5
-            limit 100;
+            limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1365,7 +1372,7 @@
             where web_cumulative &gt; store_cumulative
             order by item_sk
                     ,d_date
-            limit 100;
+            limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1397,7 +1404,7 @@
           order by dt.d_year
             ,ext_price desc
             ,brand_id
-         limit 100 ;
+         limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1421,7 +1428,7 @@
             and d_year=2001
           group by i_brand, i_brand_id
           order by ext_price desc, i_brand_id
-         limit 100 ;
+         limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1499,7 +1506,7 @@
                    select * from ws) tmp1
             group by i_item_id
             order by total_sales
-            limit 100;
+            limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1587,7 +1594,7 @@
             group by i_item_id
             order by i_item_id
                  ,total_sales
-            limit 100;
+            limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1626,7 +1633,7 @@
             order by i_manager_id
                     ,avg_monthly_sales
                     ,sum_sales
-            limit 100;
+            limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1735,7 +1742,7 @@
             cs2.cnt &lt;= cs1.cnt and
             cs1.store_name = cs2.store_name and
             cs1.store_zip = cs2.store_zip
-       order by cs1.product_name ,cs1.store_name ,cs2.cnt;
+       order by cs1.product_name ,cs1.store_name ,cs2.cnt
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1785,7 +1792,7 @@
                 and s_store_sk = sc.ss_store_sk
                 and i_item_sk = sc.ss_item_sk
         order by s_store_name , i_item_desc
-        limit 100;
+        limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2015,7 +2022,7 @@
       ,ship_carriers
           ,year
     order by w_warehouse_name
-    limit 100;
+    limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2067,7 +2074,7 @@
         and current_addr.ca_city &lt;&gt; bought_city
       order by c_last_name
               ,ss_ticket_number
-      limit 100;
+      limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2116,7 +2123,6 @@
             and (t_meal_time = &apos;breakfast&apos; or t_meal_time = &apos;dinner&apos;)
           group by i_brand, i_brand_id,t_hour,t_minute
           order by ext_price desc, i_brand_id
-          ;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2154,7 +2160,7 @@
          group by ss_ticket_number,ss_customer_sk) dj,customer
          where dj.ss_customer_sk = customer.c_customer_sk
            and cnt between 1 and 5
-         order by cnt desc;
+         order by cnt desc
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2234,7 +2240,7 @@
               AND prev_yr.d_year=2002-1
               AND CAST(curr_yr.sales_cnt AS DECIMAL(17,2))/CAST(prev_yr.sales_cnt AS DECIMAL(17,2))&lt;0.9
             ORDER BY sales_cnt_diff
-            limit 100;
+            limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2268,7 +2274,7 @@
                AND catalog_sales.cs_item_sk=item.i_item_sk) foo
     GROUP BY channel, col_name, d_year, d_qoy, i_category
     ORDER BY channel, col_name, d_year, d_qoy, i_category
-    limit 100;
+    limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2301,7 +2307,7 @@
               group by ss_ticket_number,ss_customer_sk,ss_addr_sk,store.s_city) ms,customer
               where ms.ss_customer_sk = customer.c_customer_sk
            order by c_last_name,c_first_name,sub, profit
-          limit 100;
+          limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2322,13 +2328,13 @@
       where i_current_price between 30 and 30+30
       and inv_item_sk = i_item_sk
       and d_date_sk=inv_date_sk
-      and d_date between &apos;2002-05-30&apos; and &apos;2002-07-30&apos;
+      and cast(d_date as date) between cast(&apos;2002-05-30&apos; as date) and cast(&apos;2002-07-30&apos; as date)
       and i_manufact_id in (437,129,727,663)
       and inv_quantity_on_hand between 100 and 500
       and ss_item_sk = i_item_sk
       group by i_item_id,i_item_desc,i_current_price
       order by i_item_id
-      limit 100;
+      limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2355,7 +2361,7 @@
                    where d_week_seq in 
                            (select d_week_seq
                            from date_dim
-                     where d_date in (&apos;1998-01-02&apos;,&apos;1998-10-15&apos;,&apos;1998-11-10&apos;)))
+                     where d_date in (cast(&apos;1998-01-02&apos; as data),cast(&apos;1998-10-15&apos; as date),cast(&apos;1998-11-10&apos;as date))))
             and   sr_returned_date_sk   = d_date_sk
             group by i_item_id),
             cr_items as
@@ -2405,7 +2411,7 @@
               and sr_items.item_id=wr_items.item_id 
             order by sr_items.item_id
                     ,sr_item_qty
-            limit 100;
+            limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2420,7 +2426,7 @@
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
           <stringProp name="query">select  c_customer_id as customer_id
-            ,concat(c_last_name, &apos;, &apos;, c_first_name) as customername
+            ,concat(concat(c_last_name, &apos;, &apos;), c_first_name) as customername
       from customer
           ,customer_address
           ,customer_demographics
@@ -2436,7 +2442,7 @@
         and household_demographics.hd_demo_sk = customer.c_current_hdemo_sk
         and store_returns.sr_cdemo_sk = customer_demographics.cd_demo_sk
       order by customer_id
-      limit 100;
+      limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2527,7 +2533,7 @@
         )
      group by r_reason_desc
      order by r, wq, ref, fee
-     limit 100;
+     limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2573,7 +2579,7 @@
                    t1.d1 = t3.d3
             WHERE
                 l2 is null and
-                l3 is null ;
+                l3 is null
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2677,7 +2683,6 @@
                       (household_demographics.hd_dep_count = 0 and household_demographics.hd_vehicle_count&lt;=0+2) or
                       (household_demographics.hd_dep_count = 1 and household_demographics.hd_vehicle_count&lt;=1+2))
                  and store.s_store_name = &apos;ese&apos;) s8
-            ;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2715,7 +2720,7 @@
                      s_store_name, s_company_name, d_moy) tmp1
             where case when (avg_monthly_sales &lt;&gt; 0) then (abs(sum_sales - avg_monthly_sales) / avg_monthly_sales) else null end &gt; 0.1
             order by sum_sales - avg_monthly_sales, s_store_name
-            limit 100;
+            limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2747,7 +2752,7 @@
                     and household_demographics.hd_dep_count = 8
                     and web_page.wp_char_count between 5000 and 5200) pt
             order by am_pm_ratio
-            limit 100;
+            limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2788,7 +2793,7 @@
     and     hd_buy_potential like &apos;0-500%&apos;
     and     ca_gmt_offset           = -7
     group by cc_call_center_id,cc_name,cc_manager,cd_marital_status,cd_education_status
-    order by Returns_Loss desc;
+    order by Returns_Loss desc
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2823,7 +2828,7 @@ FULL OUTER JOIN (SELECT cs.cs_bill_customer_sk as customer_sk,
                              d2.d_month_seq &lt;= 1217
               GROUP BY cs.cs_bill_customer_sk, cs.cs_item_sk) csci
 ON (ssci.customer_sk=csci.customer_sk and
-ssci.item_sk = csci.item_sk);
+ssci.item_sk = csci.item_sk)
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2851,7 +2856,7 @@ ssci.item_sk = csci.item_sk);
               and r_reason_desc = &apos;Did not like the warranty&apos;) t
       group by ss_customer_sk
       order by sumsales, ss_customer_sk
-limit 100;
+limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2877,7 +2882,7 @@ limit 100;
                 and household_demographics.hd_dep_count = 5
                 and store.s_store_name = &apos;ese&apos;
             order by c
-            limit 100;
+            limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -2911,7 +2916,7 @@ limit 100;
         d_month_seq between 1193 and 1193 + 11
       group by cs_bill_customer_sk ,cs_item_sk) csci
       on (ssci.customer_sk=csci.customer_sk and ssci.item_sk = csci.item_sk)
-      limit 100;
+      limit 100
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
