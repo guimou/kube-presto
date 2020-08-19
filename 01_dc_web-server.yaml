@@ -33,3 +33,32 @@ spec:
         - name: shared-vol
           persistentVolumeClaim:
             claimName: presto-data-share
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: webserver
+  namespace: presto
+spec:
+  ports:
+    - name: web
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  selector:
+    name: webserver
+  sessionAffinity: None
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: webserver
+  namespace: presto
+spec:
+  to:
+    kind: Service
+    name: webserver
+    weight: 100
+  port:
+    targetPort: web
+  wildcardPolicy: None

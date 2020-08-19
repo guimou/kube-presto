@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: presto-cli
-          image: 'quay.io/guimou/prestosql-cli:338'
+          image: 'quay.io/guimou/tpcds-gen:338'
           command: [ "tail", "-f", "/dev/null" ]
           resources:
             requests:
