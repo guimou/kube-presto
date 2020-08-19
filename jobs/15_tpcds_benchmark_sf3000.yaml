@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: 15-tpcds-benchmark-sf3000
+  namespace: presto
+spec:
+  selector: {}
+  template:
+    metadata:
+      name: 15-tpcds-benchmark-sf3000
+    spec:
+      volumes:
+        - name: shared-vol
+          persistentVolumeClaim:
+            claimName: presto-data-share
+      containers:
+        - name: presto-cli
+          image: 'quay.io/guimou/tpcds-run:latest'
+          imagePullPolicy: Always
+          command: [/opt/apache-jmeter-5.2.1/jmeter-bench.sh]
+          volumeMounts:
+            - name: shared-vol
+              mountPath: /data
+          env:
+            - name: SCALE
+              value: '3000'
+            - name: PRESTO_SERVER
+              value: 'presto-service:8080'
+            - name: FORMAT
+              value: 'parquet'
+            - name: SCHEMA
+              value: 'tpcds_sf$(SCALE)_$(FORMAT)'      
+      restartPolicy: Never
