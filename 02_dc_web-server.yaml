@@ -27,7 +27,7 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: shared-vol
-              mountPath: /var/www/html
+              mountPath: /var/www/html/data
               readOnly: true
       volumes:
         - name: shared-vol
