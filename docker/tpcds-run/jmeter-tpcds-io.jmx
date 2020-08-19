@@ -1,0 +1,1226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.2.1">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Presto TPCDS" enabled="true">
+      <stringProp name="TestPlan.comments"></stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments" />
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="tpcds" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">4</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <JDBCDataSource guiclass="TestBeanGUI" testclass="JDBCDataSource" testname="Presto Configuration" enabled="true">
+          <boolProp name="autocommit">true</boolProp>
+          <stringProp name="checkQuery"></stringProp>
+          <stringProp name="connectionAge">5000</stringProp>
+          <stringProp name="connectionProperties"></stringProp>
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="dbUrl">${__P(dbUrl,)}</stringProp>
+          <stringProp name="driver">io.prestosql.jdbc.PrestoDriver</stringProp>
+          <stringProp name="initQuery"></stringProp>
+          <boolProp name="keepAlive">true</boolProp>
+          <stringProp name="password"></stringProp>
+          <stringProp name="poolMax">5</stringProp>
+          <boolProp name="preinit">false</boolProp>
+          <stringProp name="timeout">10000</stringProp>
+          <stringProp name="transactionIsolation">DEFAULT</stringProp>
+          <stringProp name="trimInterval">60000</stringProp>
+          <stringProp name="username">pureuser</stringProp>
+        </JDBCDataSource>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q03" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q07" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q12" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">select  i_item_desc 
+            ,i_category 
+            ,i_class 
+            ,i_current_price
+            ,i_item_id
+            ,sum(ws_ext_sales_price) as itemrevenue 
+            ,sum(ws_ext_sales_price)*100/sum(sum(ws_ext_sales_price)) over
+                (partition by i_class) as revenueratio
+      from	
+        web_sales
+            ,item 
+            ,date_dim
+      where 
+        web_sales.ws_item_sk = item.i_item_sk 
+          and item.i_category in (&apos;Jewelry&apos;, &apos;Sports&apos;, &apos;Books&apos;)
+          and web_sales.ws_sold_date_sk = date_dim.d_date_sk
+        and date_dim.d_date between &apos;2001-01-12&apos; and &apos;2001-02-11&apos;
+      group by 
+        i_item_id
+              ,i_item_desc 
+              ,i_category
+              ,i_class
+              ,i_current_price
+      order by 
+        i_category
+              ,i_class
+              ,i_item_id
+              ,i_item_desc
+              ,revenueratio
+      limit 100;
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q13" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q15" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />      
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q17" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">SELECT
+  i_item_id
+, i_item_desc
+, s_state
+, count(ss_quantity) store_sales_quantitycount
+, avg(ss_quantity) store_sales_quantityave
+, stddev_samp(ss_quantity) store_sales_quantitystdev
+, (stddev_samp(ss_quantity) / avg(ss_quantity)) store_sales_quantitycov
+, count(sr_return_quantity) store_returns_quantitycount
+, avg(sr_return_quantity) store_returns_quantityave
+, stddev_samp(sr_return_quantity) store_returns_quantitystdev
+, (stddev_samp(sr_return_quantity) / avg(sr_return_quantity)) store_returns_quantitycov
+, count(cs_quantity) catalog_sales_quantitycount
+, avg(cs_quantity) catalog_sales_quantityave
+, stddev_samp(cs_quantity) catalog_sales_quantitystdev
+, (stddev_samp(cs_quantity) / avg(cs_quantity)) catalog_sales_quantitycov
+FROM
+  hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_returns
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.catalog_sales
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim d1
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim d2
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim d3
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.item
+WHERE (d1.d_quarter_name = &apos;2001Q1&apos;)
+   AND (d1.d_date_sk = ss_sold_date_sk)
+   AND (i_item_sk = ss_item_sk)
+   AND (s_store_sk = ss_store_sk)
+   AND (ss_customer_sk = sr_customer_sk)
+   AND (ss_item_sk = sr_item_sk)
+   AND (ss_ticket_number = sr_ticket_number)
+   AND (sr_returned_date_sk = d2.d_date_sk)
+   AND (d2.d_quarter_name IN (&apos;2001Q1&apos;, &apos;2001Q2&apos;, &apos;2001Q3&apos;))
+   AND (sr_customer_sk = cs_bill_customer_sk)
+   AND (sr_item_sk = cs_item_sk)
+   AND (cs_sold_date_sk = d3.d_date_sk)
+   AND (d3.d_quarter_name IN (&apos;2001Q1&apos;, &apos;2001Q2&apos;, &apos;2001Q3&apos;))
+GROUP BY i_item_id, i_item_desc, s_state
+ORDER BY i_item_id ASC, i_item_desc ASC, s_state ASC
+LIMIT 100
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q19" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">SELECT
+  i_brand_id brand_id
+, i_brand brand
+, i_manufact_id
+, i_manufact
+, sum(ss_ext_sales_price) ext_price
+FROM
+  hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.item
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.customer
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.customer_address
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store
+WHERE (d_date_sk = ss_sold_date_sk)
+   AND (ss_item_sk = i_item_sk)
+   AND (i_manager_id = 8)
+   AND (d_moy = 11)
+   AND (d_year = 1998)
+   AND (ss_customer_sk = c_customer_sk)
+   AND (c_current_addr_sk = ca_address_sk)
+   AND (substr(ca_zip, 1, 5) &lt;&gt; substr(s_zip, 1, 5))
+   AND (ss_store_sk = s_store_sk)
+GROUP BY i_brand, i_brand_id, i_manufact_id, i_manufact
+ORDER BY ext_price DESC, i_brand ASC, i_brand_id ASC, i_manufact_id ASC, i_manufact ASC
+LIMIT 100
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q20" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q21" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q24_1" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">WITH
+  ssales AS (
+   SELECT
+     c_last_name
+   , c_first_name
+   , s_store_name
+   , ca_state
+   , s_state
+   , i_color
+   , i_current_price
+   , i_manager_id
+   , i_units
+   , i_size
+   , sum(ss_net_paid) netpaid
+   FROM
+     hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
+   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_returns
+   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store
+   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.item
+   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.customer
+   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.customer_address
+   WHERE (ss_ticket_number = sr_ticket_number)
+      AND (ss_item_sk = sr_item_sk)
+      AND (ss_customer_sk = c_customer_sk)
+      AND (ss_item_sk = i_item_sk)
+      AND (ss_store_sk = s_store_sk)
+      AND (c_birth_country = upper(ca_country))
+      AND (s_zip = ca_zip)
+      AND (s_market_id = 8)
+   GROUP BY c_last_name, c_first_name, s_store_name, ca_state, s_state, i_color, i_current_price, i_manager_id, i_units, i_size
+) 
+SELECT
+  c_last_name
+, c_first_name
+, s_store_name
+, sum(netpaid) paid
+FROM
+  ssales
+WHERE (i_color = &apos;pale&apos;)
+GROUP BY c_last_name, c_first_name, s_store_name
+HAVING (sum(netpaid) &gt; (
+      SELECT (DECIMAL &apos;0.05&apos; * avg(netpaid))
+      FROM
+        ssales
+   ))
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q24_2" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">WITH
+  ssales AS (
+   SELECT
+     c_last_name
+   , c_first_name
+   , s_store_name
+   , ca_state
+   , s_state
+   , i_color
+   , i_current_price
+   , i_manager_id
+   , i_units
+   , i_size
+   , sum(ss_net_paid) netpaid
+   FROM
+     hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
+   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_returns
+   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store
+   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.item
+   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.customer
+   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.customer_address
+   WHERE (ss_ticket_number = sr_ticket_number)
+      AND (ss_item_sk = sr_item_sk)
+      AND (ss_customer_sk = c_customer_sk)
+      AND (ss_item_sk = i_item_sk)
+      AND (ss_store_sk = s_store_sk)
+      AND (c_birth_country = upper(ca_country))
+      AND (s_zip = ca_zip)
+      AND (s_market_id = 8)
+   GROUP BY c_last_name, c_first_name, s_store_name, ca_state, s_state, i_color, i_current_price, i_manager_id, i_units, i_size
+) 
+SELECT
+  c_last_name
+, c_first_name
+, s_store_name
+, sum(netpaid) paid
+FROM
+  ssales
+WHERE (i_color = &apos;chiffon&apos;)
+GROUP BY c_last_name, c_first_name, s_store_name
+HAVING (sum(netpaid) &gt; (
+      SELECT (DECIMAL &apos;0.05&apos; * avg(netpaid))
+      FROM
+        ssales
+   ))
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q25" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">SELECT
+  i_item_id
+, i_item_desc
+, s_store_id
+, s_store_name
+, sum(ss_net_profit) store_sales_profit
+, sum(sr_net_loss) store_returns_loss
+, sum(cs_net_profit) catalog_sales_profit
+FROM
+  hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_returns
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.catalog_sales
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim d1
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim d2
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim d3
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.item
+WHERE (d1.d_moy = 4)
+   AND (d1.d_year = 2001)
+   AND (d1.d_date_sk = ss_sold_date_sk)
+   AND (i_item_sk = ss_item_sk)
+   AND (s_store_sk = ss_store_sk)
+   AND (ss_customer_sk = sr_customer_sk)
+   AND (ss_item_sk = sr_item_sk)
+   AND (ss_ticket_number = sr_ticket_number)
+   AND (sr_returned_date_sk = d2.d_date_sk)
+   AND (d2.d_moy BETWEEN 4 AND 10)
+   AND (d2.d_year = 2001)
+   AND (sr_customer_sk = cs_bill_customer_sk)
+   AND (sr_item_sk = cs_item_sk)
+   AND (cs_sold_date_sk = d3.d_date_sk)
+   AND (d3.d_moy BETWEEN 4 AND 10)
+   AND (d3.d_year = 2001)
+GROUP BY i_item_id, i_item_desc, s_store_id, s_store_name
+ORDER BY i_item_id ASC, i_item_desc ASC, s_store_id ASC, s_store_name ASC
+LIMIT 100
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q26" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q27" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">SELECT
+  i_item_id
+, s_state
+, GROUPING (s_state) g_state
+, avg(ss_quantity) agg1
+, avg(ss_list_price) agg2
+, avg(ss_coupon_amt) agg3
+, avg(ss_sales_price) agg4
+FROM
+  hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.customer_demographics
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.item
+WHERE (ss_sold_date_sk = d_date_sk)
+   AND (ss_item_sk = i_item_sk)
+   AND (ss_store_sk = s_store_sk)
+   AND (ss_cdemo_sk = cd_demo_sk)
+   AND (cd_gender = &apos;M&apos;)
+   AND (cd_marital_status = &apos;S&apos;)
+   AND (cd_education_status = &apos;College&apos;)
+   AND (d_year = 2002)
+   AND (s_state IN (
+     &apos;TN&apos;
+   , &apos;TN&apos;
+   , &apos;TN&apos;
+   , &apos;TN&apos;
+   , &apos;TN&apos;
+   , &apos;TN&apos;))
+GROUP BY ROLLUP (i_item_id, s_state)
+ORDER BY i_item_id ASC, s_state ASC
+LIMIT 100
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q28" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">SELECT *
+FROM
+  (
+   SELECT
+     avg(ss_list_price) b1_lp
+   , count(ss_list_price) b1_cnt
+   , count(DISTINCT ss_list_price) b1_cntd
+   FROM
+     hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
+   WHERE (ss_quantity BETWEEN 0 AND 5)
+      AND ((ss_list_price BETWEEN 8 AND (8 + 10))
+         OR (ss_coupon_amt BETWEEN 459 AND (459 + 1000))
+         OR (ss_wholesale_cost BETWEEN 57 AND (57 + 20)))
+)  b1
+, (
+   SELECT
+     avg(ss_list_price) b2_lp
+   , count(ss_list_price) b2_cnt
+   , count(DISTINCT ss_list_price) b2_cntd
+   FROM
+     hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
+   WHERE (ss_quantity BETWEEN 6 AND 10)
+      AND ((ss_list_price BETWEEN 90 AND (90 + 10))
+         OR (ss_coupon_amt BETWEEN 2323 AND (2323 + 1000))
+         OR (ss_wholesale_cost BETWEEN 31 AND (31 + 20)))
+)  b2
+, (
+   SELECT
+     avg(ss_list_price) b3_lp
+   , count(ss_list_price) b3_cnt
+   , count(DISTINCT ss_list_price) b3_cntd
+   FROM
+     hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
+   WHERE (ss_quantity BETWEEN 11 AND 15)
+      AND ((ss_list_price BETWEEN 142 AND (142 + 10))
+         OR (ss_coupon_amt BETWEEN 12214 AND (12214 + 1000))
+         OR (ss_wholesale_cost BETWEEN 79 AND (79 + 20)))
+)  b3
+, (
+   SELECT
+     avg(ss_list_price) b4_lp
+   , count(ss_list_price) b4_cnt
+   , count(DISTINCT ss_list_price) b4_cntd
+   FROM
+     hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
+   WHERE (ss_quantity BETWEEN 16 AND 20)
+      AND ((ss_list_price BETWEEN 135 AND (135 + 10))
+         OR (ss_coupon_amt BETWEEN 6071 AND (6071 + 1000))
+         OR (ss_wholesale_cost BETWEEN 38 AND (38 + 20)))
+)  b4
+, (
+   SELECT
+     avg(ss_list_price) b5_lp
+   , count(ss_list_price) b5_cnt
+   , count(DISTINCT ss_list_price) b5_cntd
+   FROM
+     hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
+   WHERE (ss_quantity BETWEEN 21 AND 25)
+      AND ((ss_list_price BETWEEN 122 AND (122 + 10))
+         OR (ss_coupon_amt BETWEEN 836 AND (836 + 1000))
+         OR (ss_wholesale_cost BETWEEN 17 AND (17 + 20)))
+)  b5
+, (
+   SELECT
+     avg(ss_list_price) b6_lp
+   , count(ss_list_price) b6_cnt
+   , count(DISTINCT ss_list_price) b6_cntd
+   FROM
+     hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
+   WHERE (ss_quantity BETWEEN 26 AND 30)
+      AND ((ss_list_price BETWEEN 154 AND (154 + 10))
+         OR (ss_coupon_amt BETWEEN 7326 AND (7326 + 1000))
+         OR (ss_wholesale_cost BETWEEN 7 AND (7 + 20)))
+)  b6
+LIMIT 100
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q29" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">SELECT
+  i_item_id
+, i_item_desc
+, s_store_id
+, s_store_name
+, sum(ss_quantity) store_sales_quantity
+, sum(sr_return_quantity) store_returns_quantity
+, sum(cs_quantity) catalog_sales_quantity
+FROM
+  hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_returns
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.catalog_sales
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim d1
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim d2
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim d3
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store
+, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.item
+WHERE (d1.d_moy = 9)
+   AND (d1.d_year = 1999)
+   AND (d1.d_date_sk = ss_sold_date_sk)
+   AND (i_item_sk = ss_item_sk)
+   AND (s_store_sk = ss_store_sk)
+   AND (ss_customer_sk = sr_customer_sk)
+   AND (ss_item_sk = sr_item_sk)
+   AND (ss_ticket_number = sr_ticket_number)
+   AND (sr_returned_date_sk = d2.d_date_sk)
+   AND (d2.d_moy BETWEEN 9 AND (9 + 3))
+   AND (d2.d_year = 1999)
+   AND (sr_customer_sk = cs_bill_customer_sk)
+   AND (sr_item_sk = cs_item_sk)
+   AND (cs_sold_date_sk = d3.d_date_sk)
+   AND (d3.d_year IN (1999, (1999 + 1), (1999 + 2)))
+GROUP BY i_item_id, i_item_desc, s_store_id, s_store_name
+ORDER BY i_item_id ASC, i_item_desc ASC, s_store_id ASC, s_store_name ASC
+LIMIT 100
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q31" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q32" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q34" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q39" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q40" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q42" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q43" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q45" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q46" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q48" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q49" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q51" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q52" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q55" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q56" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q60" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q63" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q64" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q65" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q66" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q68" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q71" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q73" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q75" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q76" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q79" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q82" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q83" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q84" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q85" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q86" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q87" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q88" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q89" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q90" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q91" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q92" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q93" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q96" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q97" enabled="true">
+          <stringProp name="dataSource">presto</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">
+</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree />
+        <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>true</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <sentBytes>true</sentBytes>
+              <url>true</url>
+              <threadCounts>true</threadCounts>
+              <idleTime>true</idleTime>
+              <connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree />
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>
