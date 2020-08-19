@@ -14,4 +14,4 @@ RUN curl -o /opt/presto-cli https://repo1.maven.org/maven2/io/prestosql/presto-c
 
 WORKDIR /opt
 
-COPY tpcds-gen.sh .
+COPY tpcds-gen.sh ./

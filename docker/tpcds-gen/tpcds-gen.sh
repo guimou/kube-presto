@@ -33,7 +33,7 @@ echo "`date`: Creating schema under location: $LOCATION" | tee /dev/fd/3
 sql_exec "CREATE SCHEMA $SCHEMA WITH (location = '$LOCATION');"
 
 # Create tables and generate data
-echo "`date`: Generating tpcds.sf$SCALE data" | tee /dev/fd/3
+echo "`date`: Generating $SCHEMA data" | tee /dev/fd/3
 START=`date +%s`
 for tab in $TABLES; do
     echo "Creating and populating table: $tab"
