@@ -211,6 +211,7 @@
           <stringProp name="resultSetMaxRows"></stringProp>
           <stringProp name="resultSetHandler">Store as String</stringProp>
         </JDBCSampler>
+        <hashTree />
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q15" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>

@@ -11,7 +11,7 @@ RUN curl -o $JMETER_HOME/lib/presto-jdbc-$PRESTO_VER.jar https://repo1.maven.org
 
 WORKDIR $JMETER_HOME
 
-COPY jmeter-bench.sh jmeter-tpcds.jmx ./
+COPY jmeter-bench.sh jmeter-tpcds-io.jmx ./
 
 RUN chgrp -R 0 $JMETER_HOME && \
     chmod -R g+rw $JMETER_HOME && \

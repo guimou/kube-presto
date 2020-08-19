@@ -17,7 +17,7 @@ echo "Start JMeter test, report output to: $REPORT_DIR" | tee /dev/fd/3
 START=`date +%s`
 JAVA_HOME=$JAVA_HOME $JMETER_HOME/bin/jmeter \
 	-JdbUrl=jdbc:presto://$PRESTO_SERVER/hive/tpcds_sf${SCALE}_${FORMAT} \
-	-n -t jmeter-tpcds.jmx \
+	-n -t jmeter-tpcds-io.jmx \
 	-l $REPORT_DIR/tpcds-log.jtl \
 	-e -o $REPORT_DIR
 END=`date +%s`
