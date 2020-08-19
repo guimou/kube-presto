@@ -48,7 +48,24 @@
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q03" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  dt.d_year 
+            ,item.i_brand_id brand_id 
+            ,item.i_brand brand
+            ,sum(ss_ext_sales_price) sum_agg
+      from  date_dim dt 
+           ,store_sales
+           ,item
+      where dt.d_date_sk = store_sales.ss_sold_date_sk
+        and store_sales.ss_item_sk = item.i_item_sk
+        and item.i_manufact_id = 436
+        and dt.d_moy=12
+      group by dt.d_year
+           ,item.i_brand
+           ,item.i_brand_id
+      order by dt.d_year
+              ,sum_agg desc
+              ,brand_id
+      limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -62,7 +79,24 @@
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q07" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  i_item_id, 
+            avg(ss_quantity) agg1,
+            avg(ss_list_price) agg2,
+            avg(ss_coupon_amt) agg3,
+            avg(ss_sales_price) agg4 
+     from store_sales, customer_demographics, date_dim, item, promotion
+     where store_sales.ss_sold_date_sk = date_dim.d_date_sk and
+           store_sales.ss_item_sk = item.i_item_sk and
+           store_sales.ss_cdemo_sk = customer_demographics.cd_demo_sk and
+           store_sales.ss_promo_sk = promotion.p_promo_sk and
+           cd_gender = &apos;F&apos; and 
+           cd_marital_status = &apos;W&apos; and
+           cd_education_status = &apos;Primary&apos; and
+           (p_channel_email = &apos;N&apos; or p_channel_event = &apos;N&apos;) and
+           d_year = 1998 
+     group by i_item_id
+     order by i_item_id
+     limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -119,7 +153,55 @@
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q13" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select avg(ss_quantity)
+            ,avg(ss_ext_sales_price)
+            ,avg(ss_ext_wholesale_cost)
+            ,sum(ss_ext_wholesale_cost)
+      from store_sales
+          ,store
+          ,customer_demographics
+          ,household_demographics
+          ,customer_address
+          ,date_dim
+      where store.s_store_sk = store_sales.ss_store_sk
+      and  store_sales.ss_sold_date_sk = date_dim.d_date_sk and date_dim.d_year = 2001
+      and((store_sales.ss_hdemo_sk=household_demographics.hd_demo_sk
+       and customer_demographics.cd_demo_sk = store_sales.ss_cdemo_sk
+       and customer_demographics.cd_marital_status = &apos;M&apos;
+       and customer_demographics.cd_education_status = &apos;4 yr Degree&apos;
+       and store_sales.ss_sales_price between 100.00 and 150.00
+       and household_demographics.hd_dep_count = 3   
+          )or
+          (store_sales.ss_hdemo_sk=household_demographics.hd_demo_sk
+       and customer_demographics.cd_demo_sk = store_sales.ss_cdemo_sk
+       and customer_demographics.cd_marital_status = &apos;D&apos;
+       and customer_demographics.cd_education_status = &apos;Primary&apos;
+       and store_sales.ss_sales_price between 50.00 and 100.00   
+       and household_demographics.hd_dep_count = 1
+          ) or 
+          (store_sales.ss_hdemo_sk=household_demographics.hd_demo_sk
+       and customer_demographics.cd_demo_sk = ss_cdemo_sk
+       and customer_demographics.cd_marital_status = &apos;U&apos;
+       and customer_demographics.cd_education_status = &apos;Advanced Degree&apos;
+       and store_sales.ss_sales_price between 150.00 and 200.00 
+       and household_demographics.hd_dep_count = 1  
+          ))
+      and((store_sales.ss_addr_sk = customer_address.ca_address_sk
+       and customer_address.ca_country = &apos;United States&apos;
+       and customer_address.ca_state in (&apos;KY&apos;, &apos;GA&apos;, &apos;NM&apos;)
+       and store_sales.ss_net_profit between 100 and 200  
+          ) or
+          (store_sales.ss_addr_sk = customer_address.ca_address_sk
+       and customer_address.ca_country = &apos;United States&apos;
+       and customer_address.ca_state in (&apos;MT&apos;, &apos;OR&apos;, &apos;IN&apos;)
+       and store_sales.ss_net_profit between 150 and 300  
+          ) or
+          (store_sales.ss_addr_sk = customer_address.ca_address_sk
+       and customer_address.ca_country = &apos;United States&apos;
+       and customer_address.ca_state in (&apos;WI&apos;, &apos;MO&apos;, &apos;WV&apos;)
+       and store_sales.ss_net_profit between 50 and 250  
+          ))
+     ;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -132,7 +214,23 @@
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q15" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  ca_zip
+            ,sum(cs_sales_price)
+      from catalog_sales
+          ,customer
+          ,customer_address
+          ,date_dim
+      where catalog_sales.cs_bill_customer_sk = customer.c_customer_sk
+        and customer.c_current_addr_sk = customer_address.ca_address_sk 
+        and ( substr(ca_zip,1,5) in (&apos;85669&apos;, &apos;86197&apos;,&apos;88274&apos;,&apos;83405&apos;,&apos;86475&apos;,
+                                        &apos;85392&apos;, &apos;85460&apos;, &apos;80348&apos;, &apos;81792&apos;)
+              or customer_address.ca_state in (&apos;CA&apos;,&apos;WA&apos;,&apos;GA&apos;)
+              or catalog_sales.cs_sales_price &gt; 500)
+        and catalog_sales.cs_sold_date_sk = date_dim.d_date_sk
+        and date_dim.d_qoy = 2 and date_dim.d_year = 2000
+      group by ca_zip
+      order by ca_zip
+      limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -146,47 +244,48 @@
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q17" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">SELECT
-  i_item_id
-, i_item_desc
-, s_state
-, count(ss_quantity) store_sales_quantitycount
-, avg(ss_quantity) store_sales_quantityave
-, stddev_samp(ss_quantity) store_sales_quantitystdev
-, (stddev_samp(ss_quantity) / avg(ss_quantity)) store_sales_quantitycov
-, count(sr_return_quantity) store_returns_quantitycount
-, avg(sr_return_quantity) store_returns_quantityave
-, stddev_samp(sr_return_quantity) store_returns_quantitystdev
-, (stddev_samp(sr_return_quantity) / avg(sr_return_quantity)) store_returns_quantitycov
-, count(cs_quantity) catalog_sales_quantitycount
-, avg(cs_quantity) catalog_sales_quantityave
-, stddev_samp(cs_quantity) catalog_sales_quantitystdev
-, (stddev_samp(cs_quantity) / avg(cs_quantity)) catalog_sales_quantitycov
-FROM
-  hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_returns
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.catalog_sales
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim d1
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim d2
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim d3
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.item
-WHERE (d1.d_quarter_name = &apos;2001Q1&apos;)
-   AND (d1.d_date_sk = ss_sold_date_sk)
-   AND (i_item_sk = ss_item_sk)
-   AND (s_store_sk = ss_store_sk)
-   AND (ss_customer_sk = sr_customer_sk)
-   AND (ss_item_sk = sr_item_sk)
-   AND (ss_ticket_number = sr_ticket_number)
-   AND (sr_returned_date_sk = d2.d_date_sk)
-   AND (d2.d_quarter_name IN (&apos;2001Q1&apos;, &apos;2001Q2&apos;, &apos;2001Q3&apos;))
-   AND (sr_customer_sk = cs_bill_customer_sk)
-   AND (sr_item_sk = cs_item_sk)
-   AND (cs_sold_date_sk = d3.d_date_sk)
-   AND (d3.d_quarter_name IN (&apos;2001Q1&apos;, &apos;2001Q2&apos;, &apos;2001Q3&apos;))
-GROUP BY i_item_id, i_item_desc, s_state
-ORDER BY i_item_id ASC, i_item_desc ASC, s_state ASC
-LIMIT 100
+          <stringProp name="query">select  i_item_id
+            ,i_item_desc
+            ,s_state
+            ,count(ss_quantity) as store_sales_quantitycount
+            ,avg(ss_quantity) as store_sales_quantityave
+            ,stddev_samp(ss_quantity) as store_sales_quantitystdev
+            ,stddev_samp(ss_quantity)/avg(ss_quantity) as store_sales_quantitycov
+            ,count(sr_return_quantity) as_store_returns_quantitycount
+            ,avg(sr_return_quantity) as_store_returns_quantityave
+            ,stddev_samp(sr_return_quantity) as_store_returns_quantitystdev
+            ,stddev_samp(sr_return_quantity)/avg(sr_return_quantity) as store_returns_quantitycov
+            ,count(cs_quantity) as catalog_sales_quantitycount ,avg(cs_quantity) as catalog_sales_quantityave
+            ,stddev_samp(cs_quantity)/avg(cs_quantity) as catalog_sales_quantitystdev
+            ,stddev_samp(cs_quantity)/avg(cs_quantity) as catalog_sales_quantitycov
+      from store_sales
+          ,store_returns
+          ,catalog_sales
+          ,date_dim d1
+          ,date_dim d2
+          ,date_dim d3
+          ,store
+          ,item
+      where d1.d_quarter_name = &apos;2000Q1&apos;
+        and d1.d_date_sk = store_sales.ss_sold_date_sk
+        and item.i_item_sk = store_sales.ss_item_sk
+        and store.s_store_sk = store_sales.ss_store_sk
+        and store_sales.ss_customer_sk = store_returns.sr_customer_sk
+        and store_sales.ss_item_sk = store_returns.sr_item_sk
+        and store_sales.ss_ticket_number = store_returns.sr_ticket_number
+        and store_returns.sr_returned_date_sk = d2.d_date_sk
+        and d2.d_quarter_name in (&apos;2000Q1&apos;,&apos;2000Q2&apos;,&apos;2000Q3&apos;)
+        and store_returns.sr_customer_sk = catalog_sales.cs_bill_customer_sk
+        and store_returns.sr_item_sk = catalog_sales.cs_item_sk
+        and catalog_sales.cs_sold_date_sk = d3.d_date_sk
+        and d3.d_quarter_name in (&apos;2000Q1&apos;,&apos;2000Q2&apos;,&apos;2000Q3&apos;)
+      group by i_item_id
+              ,i_item_desc
+              ,s_state
+      order by i_item_id
+              ,i_item_desc
+              ,s_state
+     limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -200,31 +299,28 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q19" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">SELECT
-  i_brand_id brand_id
-, i_brand brand
-, i_manufact_id
-, i_manufact
-, sum(ss_ext_sales_price) ext_price
-FROM
-  hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.item
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.customer
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.customer_address
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store
-WHERE (d_date_sk = ss_sold_date_sk)
-   AND (ss_item_sk = i_item_sk)
-   AND (i_manager_id = 8)
-   AND (d_moy = 11)
-   AND (d_year = 1998)
-   AND (ss_customer_sk = c_customer_sk)
-   AND (c_current_addr_sk = ca_address_sk)
-   AND (substr(ca_zip, 1, 5) &lt;&gt; substr(s_zip, 1, 5))
-   AND (ss_store_sk = s_store_sk)
-GROUP BY i_brand, i_brand_id, i_manufact_id, i_manufact
-ORDER BY ext_price DESC, i_brand ASC, i_brand_id ASC, i_manufact_id ASC, i_manufact ASC
-LIMIT 100
+          <stringProp name="query">select  i_brand_id brand_id, i_brand brand, i_manufact_id, i_manufact,
+            sum(ss_ext_sales_price) ext_price
+          from date_dim, store_sales, item,customer,customer_address,store
+          where date_dim.d_date_sk = store_sales.ss_sold_date_sk
+            and store_sales.ss_item_sk = item.i_item_sk
+            and i_manager_id=7
+            and d_moy=11
+            and d_year=1999
+            and store_sales.ss_customer_sk = customer.c_customer_sk 
+            and customer.c_current_addr_sk = customer_address.ca_address_sk
+            and substr(ca_zip,1,5) &lt;&gt; substr(s_zip,1,5) 
+            and store_sales.ss_store_sk = store.s_store_sk 
+          group by i_brand
+               ,i_brand_id
+               ,i_manufact_id
+               ,i_manufact
+          order by ext_price desc
+                  ,i_brand
+                  ,i_brand_id
+                  ,i_manufact_id
+                  ,i_manufact
+         limit 100 ;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -238,7 +334,32 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q20" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  i_item_desc 
+            ,i_category 
+            ,i_class 
+            ,i_current_price
+            ,i_item_id
+            ,sum(cs_ext_sales_price) as itemrevenue 
+            ,sum(cs_ext_sales_price)*100/sum(sum(cs_ext_sales_price)) over
+                (partition by i_class) as revenueratio
+      from	catalog_sales
+          ,item 
+          ,date_dim
+      where catalog_sales.cs_item_sk = item.i_item_sk 
+        and i_category in (&apos;Jewelry&apos;, &apos;Sports&apos;, &apos;Books&apos;)
+        and catalog_sales.cs_sold_date_sk = date_dim.d_date_sk
+      and d_date between &apos;2001-01-12&apos; and &apos;2001-02-11&apos;
+      group by i_item_id
+              ,i_item_desc 
+              ,i_category
+              ,i_class
+              ,i_current_price
+      order by i_category
+              ,i_class
+              ,i_item_id
+              ,i_item_desc
+              ,revenueratio
+     limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -252,7 +373,32 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q21" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  *
+            from(select w_warehouse_name
+                       ,i_item_id
+                       ,sum(case when (cast(d_date as date) &lt; cast (&apos;1998-04-08&apos; as date))
+                             then inv_quantity_on_hand 
+                                 else 0 end) as inv_before
+                       ,sum(case when (cast(d_date as date) &gt;= cast (&apos;1998-04-08&apos; as date))
+                                 then inv_quantity_on_hand 
+                                 else 0 end) as inv_after
+              from inventory
+                  ,warehouse
+                  ,item
+                  ,date_dim
+              where i_current_price between 0.99 and 1.49
+                and item.i_item_sk          = inventory.inv_item_sk
+                and inventory.inv_warehouse_sk   = warehouse.w_warehouse_sk
+                and inventory.inv_date_sk    = date_dim.d_date_sk
+                and d_date between &apos;1998-03-09&apos; and &apos;1998-05-07&apos;
+              group by w_warehouse_name, i_item_id) x
+            where (case when inv_before &gt; 0 
+                        then inv_after / inv_before 
+                        else null
+                        end) between 2.0/3.0 and 3.0/2.0
+            order by w_warehouse_name
+                    ,i_item_id
+            limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -263,112 +409,106 @@ LIMIT 100
           <stringProp name="resultSetHandler">Store as String</stringProp>
         </JDBCSampler>
         <hashTree />
-        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q24_1" enabled="true">
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q24" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">WITH
-  ssales AS (
-   SELECT
-     c_last_name
-   , c_first_name
-   , s_store_name
-   , ca_state
-   , s_state
-   , i_color
-   , i_current_price
-   , i_manager_id
-   , i_units
-   , i_size
-   , sum(ss_net_paid) netpaid
-   FROM
-     hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
-   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_returns
-   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store
-   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.item
-   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.customer
-   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.customer_address
-   WHERE (ss_ticket_number = sr_ticket_number)
-      AND (ss_item_sk = sr_item_sk)
-      AND (ss_customer_sk = c_customer_sk)
-      AND (ss_item_sk = i_item_sk)
-      AND (ss_store_sk = s_store_sk)
-      AND (c_birth_country = upper(ca_country))
-      AND (s_zip = ca_zip)
-      AND (s_market_id = 8)
-   GROUP BY c_last_name, c_first_name, s_store_name, ca_state, s_state, i_color, i_current_price, i_manager_id, i_units, i_size
-) 
-SELECT
-  c_last_name
-, c_first_name
-, s_store_name
-, sum(netpaid) paid
-FROM
-  ssales
-WHERE (i_color = &apos;pale&apos;)
-GROUP BY c_last_name, c_first_name, s_store_name
-HAVING (sum(netpaid) &gt; (
-      SELECT (DECIMAL &apos;0.05&apos; * avg(netpaid))
-      FROM
-        ssales
-   ))
-</stringProp>
-          <stringProp name="queryArguments"></stringProp>
-          <stringProp name="queryArgumentsTypes"></stringProp>
-          <stringProp name="variableNames"></stringProp>
-          <stringProp name="resultVariable"></stringProp>
-          <stringProp name="queryTimeout"></stringProp>
-          <stringProp name="resultSetMaxRows"></stringProp>
-          <stringProp name="resultSetHandler">Store as String</stringProp>
-        </JDBCSampler>
-        <hashTree />
-        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q24_2" enabled="true">
-          <stringProp name="dataSource">presto</stringProp>
-          <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">WITH
-  ssales AS (
-   SELECT
-     c_last_name
-   , c_first_name
-   , s_store_name
-   , ca_state
-   , s_state
-   , i_color
-   , i_current_price
-   , i_manager_id
-   , i_units
-   , i_size
-   , sum(ss_net_paid) netpaid
-   FROM
-     hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
-   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_returns
-   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store
-   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.item
-   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.customer
-   , hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.customer_address
-   WHERE (ss_ticket_number = sr_ticket_number)
-      AND (ss_item_sk = sr_item_sk)
-      AND (ss_customer_sk = c_customer_sk)
-      AND (ss_item_sk = i_item_sk)
-      AND (ss_store_sk = s_store_sk)
-      AND (c_birth_country = upper(ca_country))
-      AND (s_zip = ca_zip)
-      AND (s_market_id = 8)
-   GROUP BY c_last_name, c_first_name, s_store_name, ca_state, s_state, i_color, i_current_price, i_manager_id, i_units, i_size
-) 
-SELECT
-  c_last_name
-, c_first_name
-, s_store_name
-, sum(netpaid) paid
-FROM
-  ssales
-WHERE (i_color = &apos;chiffon&apos;)
-GROUP BY c_last_name, c_first_name, s_store_name
-HAVING (sum(netpaid) &gt; (
-      SELECT (DECIMAL &apos;0.05&apos; * avg(netpaid))
-      FROM
-        ssales
-   ))
+          <stringProp name="query">with ssales as
+            (select c_last_name
+                  ,c_first_name
+                  ,s_store_name
+                  ,ca_state
+                  ,s_state
+                  ,i_color
+                  ,i_current_price
+                  ,i_manager_id
+                  ,i_units
+                  ,i_size
+                  ,sum(ss_sales_price) netpaid
+            from store_sales
+                ,store_returns
+                ,store
+                ,item
+                ,customer
+                ,customer_address
+            where ss_ticket_number = sr_ticket_number
+              and ss_item_sk = sr_item_sk
+              and ss_customer_sk = c_customer_sk
+              and ss_item_sk = i_item_sk
+              and ss_store_sk = s_store_sk
+              and c_birth_country = upper(ca_country)
+              and s_zip = ca_zip
+            and s_market_id=7
+            group by c_last_name
+                    ,c_first_name
+                    ,s_store_name
+                    ,ca_state
+                    ,s_state
+                    ,i_color
+                    ,i_current_price
+                    ,i_manager_id
+                    ,i_units
+                    ,i_size)
+            select c_last_name
+                  ,c_first_name
+                  ,s_store_name
+                  ,sum(netpaid) paid
+            from ssales
+            where i_color = &apos;orchid&apos;
+            group by c_last_name
+                    ,c_first_name
+                    ,s_store_name
+            having sum(netpaid) &gt; (select 0.05*avg(netpaid)
+                                             from ssales)
+            ;
+            
+            with ssales as
+            (select c_last_name
+                  ,c_first_name
+                  ,s_store_name
+                  ,ca_state
+                  ,s_state
+                  ,i_color
+                  ,i_current_price
+                  ,i_manager_id
+                  ,i_units
+                  ,i_size
+                  ,sum(ss_sales_price) netpaid
+            from store_sales
+                ,store_returns
+                ,store
+                ,item
+                ,customer
+                ,customer_address
+            where ss_ticket_number = sr_ticket_number
+              and ss_item_sk = sr_item_sk
+              and ss_customer_sk = c_customer_sk
+              and ss_item_sk = i_item_sk
+              and ss_store_sk = s_store_sk
+              and c_birth_country = upper(ca_country)
+              and s_zip = ca_zip
+              and s_market_id = 7
+            group by c_last_name
+                    ,c_first_name
+                    ,s_store_name
+                    ,ca_state
+                    ,s_state
+                    ,i_color
+                    ,i_current_price
+                    ,i_manager_id
+                    ,i_units
+                    ,i_size)
+            select c_last_name
+                  ,c_first_name
+                  ,s_store_name
+                  ,sum(netpaid) paid
+            from ssales
+            where i_color = &apos;chiffon&apos;
+            group by c_last_name
+                    ,c_first_name
+                    ,s_store_name
+            having sum(netpaid) &gt; (select 0.05*avg(netpaid)
+                                       from ssales)
+            ;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -382,42 +522,51 @@ HAVING (sum(netpaid) &gt; (
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q25" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">SELECT
-  i_item_id
-, i_item_desc
-, s_store_id
-, s_store_name
-, sum(ss_net_profit) store_sales_profit
-, sum(sr_net_loss) store_returns_loss
-, sum(cs_net_profit) catalog_sales_profit
-FROM
-  hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_returns
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.catalog_sales
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim d1
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim d2
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim d3
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.item
-WHERE (d1.d_moy = 4)
-   AND (d1.d_year = 2001)
-   AND (d1.d_date_sk = ss_sold_date_sk)
-   AND (i_item_sk = ss_item_sk)
-   AND (s_store_sk = ss_store_sk)
-   AND (ss_customer_sk = sr_customer_sk)
-   AND (ss_item_sk = sr_item_sk)
-   AND (ss_ticket_number = sr_ticket_number)
-   AND (sr_returned_date_sk = d2.d_date_sk)
-   AND (d2.d_moy BETWEEN 4 AND 10)
-   AND (d2.d_year = 2001)
-   AND (sr_customer_sk = cs_bill_customer_sk)
-   AND (sr_item_sk = cs_item_sk)
-   AND (cs_sold_date_sk = d3.d_date_sk)
-   AND (d3.d_moy BETWEEN 4 AND 10)
-   AND (d3.d_year = 2001)
-GROUP BY i_item_id, i_item_desc, s_store_id, s_store_name
-ORDER BY i_item_id ASC, i_item_desc ASC, s_store_id ASC, s_store_name ASC
-LIMIT 100
+          <stringProp name="query">select
+            i_item_id
+            ,i_item_desc
+            ,s_store_id
+            ,s_store_name
+            ,sum(ss_net_profit) as store_sales_profit
+            ,sum(sr_net_loss) as store_returns_loss
+            ,sum(cs_net_profit) as catalog_sales_profit
+            from
+            store_sales
+            ,store_returns
+            ,catalog_sales
+            ,date_dim d1
+            ,date_dim d2
+            ,date_dim d3
+            ,store
+            ,item
+            where
+            d1.d_moy = 4
+            and d1.d_year = 1998
+            and d1.d_date_sk = ss_sold_date_sk
+            and i_item_sk = ss_item_sk
+            and s_store_sk = ss_store_sk
+            and ss_customer_sk = sr_customer_sk
+            and ss_item_sk = sr_item_sk
+            and ss_ticket_number = sr_ticket_number
+            and sr_returned_date_sk = d2.d_date_sk
+            and d2.d_moy               between 4 and  10
+            and d2.d_year              = 1998
+            and sr_customer_sk = cs_bill_customer_sk
+            and sr_item_sk = cs_item_sk
+            and cs_sold_date_sk = d3.d_date_sk
+            and d3.d_moy               between 4 and  10
+            and d3.d_year              = 1998
+            group by
+            i_item_id
+            ,i_item_desc
+            ,s_store_id
+            ,s_store_name
+            order by
+            i_item_id
+            ,i_item_desc
+            ,s_store_id
+            ,s_store_name
+            limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -431,7 +580,24 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q26" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  i_item_id, 
+            avg(cs_quantity) agg1,
+            avg(cs_list_price) agg2,
+            avg(cs_coupon_amt) agg3,
+            avg(cs_sales_price) agg4 
+     from catalog_sales, customer_demographics, date_dim, item, promotion
+     where catalog_sales.cs_sold_date_sk = date_dim.d_date_sk and
+           catalog_sales.cs_item_sk = item.i_item_sk and
+           catalog_sales.cs_bill_cdemo_sk = customer_demographics.cd_demo_sk and
+           catalog_sales.cs_promo_sk = promotion.p_promo_sk and
+           cd_gender = &apos;F&apos; and 
+           cd_marital_status = &apos;W&apos; and
+           cd_education_status = &apos;Primary&apos; and
+           (p_channel_email = &apos;N&apos; or p_channel_event = &apos;N&apos;) and
+           d_year = 1998
+     group by i_item_id
+     order by i_item_id
+     limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -445,38 +611,26 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q27" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">SELECT
-  i_item_id
-, s_state
-, GROUPING (s_state) g_state
-, avg(ss_quantity) agg1
-, avg(ss_list_price) agg2
-, avg(ss_coupon_amt) agg3
-, avg(ss_sales_price) agg4
-FROM
-  hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.customer_demographics
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.item
-WHERE (ss_sold_date_sk = d_date_sk)
-   AND (ss_item_sk = i_item_sk)
-   AND (ss_store_sk = s_store_sk)
-   AND (ss_cdemo_sk = cd_demo_sk)
-   AND (cd_gender = &apos;M&apos;)
-   AND (cd_marital_status = &apos;S&apos;)
-   AND (cd_education_status = &apos;College&apos;)
-   AND (d_year = 2002)
-   AND (s_state IN (
-     &apos;TN&apos;
-   , &apos;TN&apos;
-   , &apos;TN&apos;
-   , &apos;TN&apos;
-   , &apos;TN&apos;
-   , &apos;TN&apos;))
-GROUP BY ROLLUP (i_item_id, s_state)
-ORDER BY i_item_id ASC, s_state ASC
-LIMIT 100
+          <stringProp name="query">select  i_item_id,
+            s_state,
+            avg(ss_quantity) agg1,
+            avg(ss_list_price) agg2,
+            avg(ss_coupon_amt) agg3,
+            avg(ss_sales_price) agg4
+     from store_sales, customer_demographics, date_dim, store, item
+     where store_sales.ss_sold_date_sk = date_dim.d_date_sk and
+           store_sales.ss_item_sk = item.i_item_sk and
+           store_sales.ss_store_sk = store.s_store_sk and
+           store_sales.ss_cdemo_sk = customer_demographics.cd_demo_sk and
+           customer_demographics.cd_gender = &apos;F&apos; and
+           customer_demographics.cd_marital_status = &apos;D&apos; and
+           customer_demographics.cd_education_status = &apos;Unknown&apos; and
+           date_dim.d_year = 1998 and
+           store.s_state in (&apos;KS&apos;,&apos;AL&apos;, &apos;MN&apos;, &apos;AL&apos;, &apos;SC&apos;, &apos;VT&apos;)
+     group by i_item_id, s_state
+     order by i_item_id
+             ,s_state
+     limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -490,81 +644,56 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q28" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">SELECT *
-FROM
-  (
-   SELECT
-     avg(ss_list_price) b1_lp
-   , count(ss_list_price) b1_cnt
-   , count(DISTINCT ss_list_price) b1_cntd
-   FROM
-     hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
-   WHERE (ss_quantity BETWEEN 0 AND 5)
-      AND ((ss_list_price BETWEEN 8 AND (8 + 10))
-         OR (ss_coupon_amt BETWEEN 459 AND (459 + 1000))
-         OR (ss_wholesale_cost BETWEEN 57 AND (57 + 20)))
-)  b1
-, (
-   SELECT
-     avg(ss_list_price) b2_lp
-   , count(ss_list_price) b2_cnt
-   , count(DISTINCT ss_list_price) b2_cntd
-   FROM
-     hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
-   WHERE (ss_quantity BETWEEN 6 AND 10)
-      AND ((ss_list_price BETWEEN 90 AND (90 + 10))
-         OR (ss_coupon_amt BETWEEN 2323 AND (2323 + 1000))
-         OR (ss_wholesale_cost BETWEEN 31 AND (31 + 20)))
-)  b2
-, (
-   SELECT
-     avg(ss_list_price) b3_lp
-   , count(ss_list_price) b3_cnt
-   , count(DISTINCT ss_list_price) b3_cntd
-   FROM
-     hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
-   WHERE (ss_quantity BETWEEN 11 AND 15)
-      AND ((ss_list_price BETWEEN 142 AND (142 + 10))
-         OR (ss_coupon_amt BETWEEN 12214 AND (12214 + 1000))
-         OR (ss_wholesale_cost BETWEEN 79 AND (79 + 20)))
-)  b3
-, (
-   SELECT
-     avg(ss_list_price) b4_lp
-   , count(ss_list_price) b4_cnt
-   , count(DISTINCT ss_list_price) b4_cntd
-   FROM
-     hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
-   WHERE (ss_quantity BETWEEN 16 AND 20)
-      AND ((ss_list_price BETWEEN 135 AND (135 + 10))
-         OR (ss_coupon_amt BETWEEN 6071 AND (6071 + 1000))
-         OR (ss_wholesale_cost BETWEEN 38 AND (38 + 20)))
-)  b4
-, (
-   SELECT
-     avg(ss_list_price) b5_lp
-   , count(ss_list_price) b5_cnt
-   , count(DISTINCT ss_list_price) b5_cntd
-   FROM
-     hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
-   WHERE (ss_quantity BETWEEN 21 AND 25)
-      AND ((ss_list_price BETWEEN 122 AND (122 + 10))
-         OR (ss_coupon_amt BETWEEN 836 AND (836 + 1000))
-         OR (ss_wholesale_cost BETWEEN 17 AND (17 + 20)))
-)  b5
-, (
-   SELECT
-     avg(ss_list_price) b6_lp
-   , count(ss_list_price) b6_cnt
-   , count(DISTINCT ss_list_price) b6_cntd
-   FROM
-     hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
-   WHERE (ss_quantity BETWEEN 26 AND 30)
-      AND ((ss_list_price BETWEEN 154 AND (154 + 10))
-         OR (ss_coupon_amt BETWEEN 7326 AND (7326 + 1000))
-         OR (ss_wholesale_cost BETWEEN 7 AND (7 + 20)))
-)  b6
-LIMIT 100
+          <stringProp name="query">select  *
+            from (select avg(ss_list_price) B1_LP
+                        ,count(ss_list_price) B1_CNT
+                        ,count(distinct ss_list_price) B1_CNTD
+                  from store_sales
+                  where ss_quantity between 0 and 5
+                    and (ss_list_price between 11 and 11+10 
+                         or ss_coupon_amt between 460 and 460+1000
+                         or ss_wholesale_cost between 14 and 14+20)) B1,
+                 (select avg(ss_list_price) B2_LP
+                        ,count(ss_list_price) B2_CNT
+                        ,count(distinct ss_list_price) B2_CNTD
+                  from store_sales
+                  where ss_quantity between 6 and 10
+                    and (ss_list_price between 91 and 91+10
+                      or ss_coupon_amt between 1430 and 1430+1000
+                      or ss_wholesale_cost between 32 and 32+20)) B2,
+                 (select avg(ss_list_price) B3_LP
+                        ,count(ss_list_price) B3_CNT
+                        ,count(distinct ss_list_price) B3_CNTD
+                  from store_sales
+                  where ss_quantity between 11 and 15
+                    and (ss_list_price between 66 and 66+10
+                      or ss_coupon_amt between 920 and 920+1000
+                      or ss_wholesale_cost between 4 and 4+20)) B3,
+                 (select avg(ss_list_price) B4_LP
+                        ,count(ss_list_price) B4_CNT
+                        ,count(distinct ss_list_price) B4_CNTD
+                  from store_sales
+                  where ss_quantity between 16 and 20
+                    and (ss_list_price between 142 and 142+10
+                      or ss_coupon_amt between 3054 and 3054+1000
+                      or ss_wholesale_cost between 80 and 80+20)) B4,
+                 (select avg(ss_list_price) B5_LP
+                        ,count(ss_list_price) B5_CNT
+                        ,count(distinct ss_list_price) B5_CNTD
+                  from store_sales
+                  where ss_quantity between 21 and 25
+                    and (ss_list_price between 135 and 135+10
+                      or ss_coupon_amt between 14180 and 14180+1000
+                      or ss_wholesale_cost between 38 and 38+20)) B5,
+                 (select avg(ss_list_price) B6_LP
+                        ,count(ss_list_price) B6_CNT
+                        ,count(distinct ss_list_price) B6_CNTD
+                  from store_sales
+                  where ss_quantity between 26 and 30
+                    and (ss_list_price between 28 and 28+10
+                      or ss_coupon_amt between 2513 and 2513+1000
+                      or ss_wholesale_cost between 42 and 42+20)) B6
+            limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -578,41 +707,50 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q29" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">SELECT
-  i_item_id
-, i_item_desc
-, s_store_id
-, s_store_name
-, sum(ss_quantity) store_sales_quantity
-, sum(sr_return_quantity) store_returns_quantity
-, sum(cs_quantity) catalog_sales_quantity
-FROM
-  hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_sales
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store_returns
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.catalog_sales
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim d1
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim d2
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.date_dim d3
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.store
-, hive.tpcds_sf${__P(Scale,)}_${__P(Format,)}.item
-WHERE (d1.d_moy = 9)
-   AND (d1.d_year = 1999)
-   AND (d1.d_date_sk = ss_sold_date_sk)
-   AND (i_item_sk = ss_item_sk)
-   AND (s_store_sk = ss_store_sk)
-   AND (ss_customer_sk = sr_customer_sk)
-   AND (ss_item_sk = sr_item_sk)
-   AND (ss_ticket_number = sr_ticket_number)
-   AND (sr_returned_date_sk = d2.d_date_sk)
-   AND (d2.d_moy BETWEEN 9 AND (9 + 3))
-   AND (d2.d_year = 1999)
-   AND (sr_customer_sk = cs_bill_customer_sk)
-   AND (sr_item_sk = cs_item_sk)
-   AND (cs_sold_date_sk = d3.d_date_sk)
-   AND (d3.d_year IN (1999, (1999 + 1), (1999 + 2)))
-GROUP BY i_item_id, i_item_desc, s_store_id, s_store_name
-ORDER BY i_item_id ASC, i_item_desc ASC, s_store_id ASC, s_store_name ASC
-LIMIT 100
+          <stringProp name="query">select   
+            i_item_id
+           ,i_item_desc
+           ,s_store_id
+           ,s_store_name
+           ,sum(ss_quantity)        as store_sales_quantity
+           ,sum(sr_return_quantity) as store_returns_quantity
+           ,sum(cs_quantity)        as catalog_sales_quantity
+        from
+           store_sales
+          ,store_returns
+          ,catalog_sales
+          ,date_dim             d1
+          ,date_dim             d2
+          ,date_dim             d3
+          ,store
+          ,item
+        where
+            d1.d_moy               = 2 
+        and d1.d_year              = 2000
+        and d1.d_date_sk           = ss_sold_date_sk
+        and i_item_sk              = ss_item_sk
+        and s_store_sk             = ss_store_sk
+        and ss_customer_sk         = sr_customer_sk
+        and ss_item_sk             = sr_item_sk
+        and ss_ticket_number       = sr_ticket_number
+        and sr_returned_date_sk    = d2.d_date_sk
+        and d2.d_moy               between 2 and  2 + 3 
+        and d2.d_year              = 2000
+        and sr_customer_sk         = cs_bill_customer_sk
+        and sr_item_sk             = cs_item_sk
+        and cs_sold_date_sk        = d3.d_date_sk     
+        and d3.d_year              in (2000,2000+1,2000+2)
+        group by
+           i_item_id
+          ,i_item_desc
+          ,s_store_id
+          ,s_store_name
+        order by
+           i_item_id 
+          ,i_item_desc
+          ,s_store_id
+          ,s_store_name
+        limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -626,7 +764,55 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q31" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">with ss as
+            (select ca_county,d_qoy, d_year,sum(ss_ext_sales_price) as store_sales
+            from store_sales,date_dim,customer_address
+            where ss_sold_date_sk = d_date_sk
+             and ss_addr_sk=ca_address_sk
+            group by ca_county,d_qoy, d_year),
+            ws as
+            (select ca_county,d_qoy, d_year,sum(ws_ext_sales_price) as web_sales
+            from web_sales,date_dim,customer_address
+            where ws_sold_date_sk = d_date_sk
+             and ws_bill_addr_sk=ca_address_sk
+            group by ca_county,d_qoy, d_year)
+            select
+                   ss1.ca_county
+                  ,ss1.d_year
+                  ,ws2.web_sales/ws1.web_sales web_q1_q2_increase
+                  ,ss2.store_sales/ss1.store_sales store_q1_q2_increase
+                  ,ws3.web_sales/ws2.web_sales web_q2_q3_increase
+                  ,ss3.store_sales/ss2.store_sales store_q2_q3_increase
+            from
+                   ss ss1
+                  ,ss ss2
+                  ,ss ss3
+                  ,ws ws1
+                  ,ws ws2
+                  ,ws ws3
+            where
+               ss1.d_qoy = 1
+               and ss1.d_year = 1998
+               and ss1.ca_county = ss2.ca_county
+               and ss2.d_qoy = 2
+               and ss2.d_year = 1998
+            and ss2.ca_county = ss3.ca_county
+               and ss3.d_qoy = 3
+               and ss3.d_year = 1998
+               and ss1.ca_county = ws1.ca_county
+               and ws1.d_qoy = 1
+               and ws1.d_year = 1998
+               and ws1.ca_county = ws2.ca_county
+               and ws2.d_qoy = 2
+               and ws2.d_year = 1998
+               and ws1.ca_county = ws3.ca_county
+               and ws3.d_qoy = 3
+               and ws3.d_year =1998
+               and case when ws1.web_sales &gt; 0 then ws2.web_sales/ws1.web_sales else null end 
+                  &gt; case when ss1.store_sales &gt; 0 then ss2.store_sales/ss1.store_sales else null end
+               and case when ws2.web_sales &gt; 0 then ws3.web_sales/ws2.web_sales else null end
+                  &gt; case when ss2.store_sales &gt; 0 then ss3.store_sales/ss2.store_sales else null end
+            order by web_q1_q2_increase;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -640,7 +826,24 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q32" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">SELECT sum(cs1.cs_ext_discount_amt) as excess_discount_amount
+            FROM (SELECT cs.cs_item_sk as cs_item_sk,
+                                         cs.cs_ext_discount_amt as cs_ext_discount_amt
+                         FROM catalog_sales cs
+                         JOIN date_dim d ON (d.d_date_sk = cs.cs_sold_date_sk)
+                         WHERE d.d_date between &apos;2000-01-27&apos; and &apos;2000-04-27&apos;) cs1
+            JOIN item i ON (i.i_item_sk = cs1.cs_item_sk)
+            JOIN (SELECT cs2.cs_item_sk as cs_item_sk,
+                                      1.3 * avg(cs_ext_discount_amt) as avg_cs_ext_discount_amt
+                       FROM (SELECT cs.cs_item_sk as cs_item_sk,
+                                                    cs.cs_ext_discount_amt as cs_ext_discount_amt
+                                    FROM catalog_sales cs
+                                    JOIN date_dim d ON (d.d_date_sk = cs.cs_sold_date_sk)
+                                    WHERE d.d_date between &apos;2000-01-27&apos; and &apos;2000-04-27&apos;) cs2
+                                    GROUP BY cs2.cs_item_sk) tmp1
+            ON (i.i_item_sk = tmp1.cs_item_sk)
+            WHERE i.i_manufact_id = 436 and
+                           cs1.cs_ext_discount_amt &gt; tmp1.avg_cs_ext_discount_amt;            
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -654,7 +857,34 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q34" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select c_last_name
+            ,c_first_name
+            ,c_salutation
+            ,c_preferred_cust_flag
+            ,ss_ticket_number
+            ,cnt from
+        (select ss_ticket_number
+               ,ss_customer_sk
+               ,count(*) cnt
+         from store_sales,date_dim,store,household_demographics
+         where store_sales.ss_sold_date_sk = date_dim.d_date_sk
+         and store_sales.ss_store_sk = store.s_store_sk  
+         and store_sales.ss_hdemo_sk = household_demographics.hd_demo_sk
+         and (date_dim.d_dom between 1 and 3 or date_dim.d_dom between 25 and 28)
+         and (household_demographics.hd_buy_potential = &apos;1001-5000&apos; or
+              household_demographics.hd_buy_potential = &apos;5001-10000&apos;)
+         and household_demographics.hd_vehicle_count &gt; 0
+         and (case when household_demographics.hd_vehicle_count &gt; 0 
+       then household_demographics.hd_dep_count/ household_demographics.hd_vehicle_count 
+       else null 
+       end)  &gt; 1.2
+         and date_dim.d_year in (1998,1998+1,1998+2)
+         and store.s_county in (&apos;Kittitas County&apos;,&apos;Adams County&apos;,&apos;Richland County&apos;,&apos;Furnas County&apos;,
+                                &apos;Orange County&apos;,&apos;Appanoose County&apos;,&apos;Franklin Parish&apos;,&apos;Tehama County&apos;)
+         group by ss_ticket_number,ss_customer_sk) dn,customer
+         where dn.ss_customer_sk = customer.c_customer_sk
+           and cnt between 15 and 20
+         order by c_last_name,c_first_name,c_salutation,c_preferred_cust_flag desc;     
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -668,7 +898,31 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q39" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">with inv as
+            (select w_warehouse_name,w_warehouse_sk,i_item_sk,d_moy
+                   ,stdev,mean, case mean when 0 then null else stdev/mean end cov
+             from(select w_warehouse_name,w_warehouse_sk,i_item_sk,d_moy
+                        ,stddev_samp(inv_quantity_on_hand) stdev,avg(inv_quantity_on_hand) mean
+                  from inventory
+                      ,item
+                      ,warehouse
+                      ,date_dim
+                  where inv_item_sk = i_item_sk
+                    and inv_warehouse_sk = w_warehouse_sk
+                    and inv_date_sk = d_date_sk
+                    and d_year =1999
+                  group by w_warehouse_name,w_warehouse_sk,i_item_sk,d_moy) foo
+             where case mean when 0 then 0 else stdev/mean end &gt; 1)
+            select inv1.w_warehouse_sk,inv1.i_item_sk,inv1.d_moy,inv1.mean, inv1.cov
+                    ,inv2.w_warehouse_sk,inv2.i_item_sk,inv2.d_moy,inv2.mean, inv2.cov
+            from inv inv1,inv inv2
+            where inv1.i_item_sk = inv2.i_item_sk
+              and inv1.w_warehouse_sk =  inv2.w_warehouse_sk
+              and inv1.d_moy=3
+              and inv2.d_moy=3+1
+            order by inv1.w_warehouse_sk,inv1.i_item_sk,inv1.d_moy,inv1.mean,inv1.cov
+                    ,inv2.d_moy,inv2.mean, inv2.cov
+            ;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -682,7 +936,30 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q40" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  
+            w_state
+           ,i_item_id
+           ,sum(case when (cast(d_date as date) &lt; cast (&apos;1998-04-08&apos; as date)) 
+              then cs_sales_price - coalesce(cr_refunded_cash,0) else 0 end) as sales_before
+           ,sum(case when (cast(d_date as date) &gt;= cast (&apos;1998-04-08&apos; as date)) 
+              then cs_sales_price - coalesce(cr_refunded_cash,0) else 0 end) as sales_after
+          from
+            catalog_sales left outer join catalog_returns on
+                (catalog_sales.cs_order_number = catalog_returns.cr_order_number 
+                 and catalog_sales.cs_item_sk = catalog_returns.cr_item_sk)
+           ,warehouse 
+           ,item
+           ,date_dim
+          where
+              i_current_price between 0.99 and 1.49
+          and item.i_item_sk          = catalog_sales.cs_item_sk
+          and catalog_sales.cs_warehouse_sk    = warehouse.w_warehouse_sk 
+          and catalog_sales.cs_sold_date_sk    = date_dim.d_date_sk
+          and date_dim.d_date between &apos;1998-03-09&apos; and &apos;1998-05-08&apos;
+          group by
+             w_state,i_item_id
+          order by w_state,i_item_id
+         limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -696,7 +973,25 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q42" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  dt.d_year
+            ,item.i_category_id
+            ,item.i_category
+            ,sum(ss_ext_sales_price) as s
+          from 	date_dim dt
+            ,store_sales
+            ,item
+          where dt.d_date_sk = store_sales.ss_sold_date_sk
+            and store_sales.ss_item_sk = item.i_item_sk
+            and item.i_manager_id = 1  	
+            and dt.d_moy=12
+            and dt.d_year=1998
+          group by 	dt.d_year
+              ,item.i_category_id
+              ,item.i_category
+          order by       s desc,dt.d_year
+              ,item.i_category_id
+              ,item.i_category
+         limit 100 ;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -710,7 +1005,22 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q43" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  s_store_name, s_store_id,
+            sum(case when (d_day_name=&apos;Sunday&apos;) then ss_sales_price else null end) sun_sales,
+            sum(case when (d_day_name=&apos;Monday&apos;) then ss_sales_price else null end) mon_sales,
+            sum(case when (d_day_name=&apos;Tuesday&apos;) then ss_sales_price else  null end) tue_sales,
+            sum(case when (d_day_name=&apos;Wednesday&apos;) then ss_sales_price else null end) wed_sales,
+            sum(case when (d_day_name=&apos;Thursday&apos;) then ss_sales_price else null end) thu_sales,
+            sum(case when (d_day_name=&apos;Friday&apos;) then ss_sales_price else null end) fri_sales,
+            sum(case when (d_day_name=&apos;Saturday&apos;) then ss_sales_price else null end) sat_sales
+     from date_dim, store_sales, store
+     where date_dim.d_date_sk = store_sales.ss_sold_date_sk and
+           store.s_store_sk = store_sales.ss_store_sk and
+           s_gmt_offset = -6 and
+           d_year = 1998
+     group by s_store_name, s_store_id
+     order by s_store_name, s_store_id,sun_sales,mon_sales,tue_sales,wed_sales,thu_sales,fri_sales,sat_sales
+     limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -724,7 +1034,23 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q45" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  ca_zip, ca_county, sum(ws_sales_price)
+            from
+               web_sales
+               JOIN customer ON web_sales.ws_bill_customer_sk = customer.c_customer_sk
+               JOIN customer_address ON customer.c_current_addr_sk = customer_address.ca_address_sk 
+               JOIN date_dim ON web_sales.ws_sold_date_sk = date_dim.d_date_sk
+               JOIN item ON web_sales.ws_item_sk = item.i_item_sk 
+            where
+                   ( item.i_item_id in (select i_item_id
+                                        from item i2
+                                        where i2.i_item_sk in (2, 3, 5, 7, 11, 13, 17, 19, 23, 29)
+                                        )
+                       )
+                   and d_qoy = 2 and d_year = 2000
+            group by ca_zip, ca_county
+            order by ca_zip, ca_county
+            limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -738,7 +1064,38 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q46" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  c_last_name
+            ,c_first_name
+            ,ca_city
+            ,bought_city
+            ,ss_ticket_number
+            ,amt,profit 
+      from
+        (select ss_ticket_number
+               ,ss_customer_sk
+               ,ca_city bought_city
+               ,sum(ss_coupon_amt) amt
+               ,sum(ss_net_profit) profit
+         from store_sales,date_dim,store,household_demographics,customer_address 
+         where store_sales.ss_sold_date_sk = date_dim.d_date_sk
+         and store_sales.ss_store_sk = store.s_store_sk  
+         and store_sales.ss_hdemo_sk = household_demographics.hd_demo_sk
+         and store_sales.ss_addr_sk = customer_address.ca_address_sk
+         and (household_demographics.hd_dep_count = 4 or
+              household_demographics.hd_vehicle_count= 2)
+         and date_dim.d_dow in (6,0)
+         and date_dim.d_year in (1998,1998+1,1998+2) 
+         and store.s_city in (&apos;Rosedale&apos;,&apos;Bethlehem&apos;,&apos;Clinton&apos;,&apos;Clifton&apos;,&apos;Springfield&apos;) 
+         group by ss_ticket_number,ss_customer_sk,ss_addr_sk,ca_city) dn,customer,customer_address current_addr
+         where dn.ss_customer_sk = customer.c_customer_sk
+           and customer.c_current_addr_sk = current_addr.ca_address_sk
+           and current_addr.ca_city &lt;&gt; bought_city
+       order by c_last_name
+               ,c_first_name
+               ,ca_city
+               ,bought_city
+               ,ss_ticket_number
+       limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -752,7 +1109,70 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q48" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select sum (ss_quantity)
+            from store_sales, store, customer_demographics, customer_address, date_dim
+            where store.s_store_sk = store_sales.ss_store_sk
+            and  store_sales.ss_sold_date_sk = date_dim.d_date_sk and d_year = 1998
+            and  
+            (
+             (
+              customer_demographics.cd_demo_sk = store_sales.ss_cdemo_sk
+              and 
+              cd_marital_status = &apos;M&apos;
+              and 
+              cd_education_status = &apos;4 yr Degree&apos;
+              and 
+              ss_sales_price between 100.00 and 150.00  
+              )
+            or
+             (
+             customer_demographics.cd_demo_sk = store_sales.ss_cdemo_sk
+              and 
+              cd_marital_status = &apos;M&apos;
+              and 
+              cd_education_status = &apos;4 yr Degree&apos;
+              and 
+              ss_sales_price between 50.00 and 100.00   
+             )
+            or 
+            (
+             customer_demographics.cd_demo_sk = store_sales.ss_cdemo_sk
+             and 
+              cd_marital_status = &apos;M&apos;
+              and 
+              cd_education_status = &apos;4 yr Degree&apos;
+              and 
+              ss_sales_price between 150.00 and 200.00  
+            )
+            )
+            and
+            (
+             (
+             store_sales.ss_addr_sk = customer_address.ca_address_sk
+             and
+             ca_country = &apos;United States&apos;
+             and
+             ca_state in (&apos;KY&apos;, &apos;GA&apos;, &apos;NM&apos;)
+             and ss_net_profit between 0 and 2000  
+             )
+            or
+             (store_sales.ss_addr_sk = customer_address.ca_address_sk
+             and
+             ca_country = &apos;United States&apos;
+             and
+             ca_state in (&apos;MT&apos;, &apos;OR&apos;, &apos;IN&apos;)
+             and ss_net_profit between 150 and 3000 
+             )
+            or
+             (store_sales.ss_addr_sk = customer_address.ca_address_sk
+             and
+             ca_country = &apos;United States&apos;
+             and
+             ca_state in (&apos;WI&apos;, &apos;MO&apos;, &apos;WV&apos;)
+             and ss_net_profit between 50 and 25000 
+             )
+            )
+           ;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -766,7 +1186,130 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q49" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  
+            &apos;web&apos; as channel
+            ,web.item
+            ,web.return_ratio
+            ,web.return_rank
+            ,web.currency_rank
+            from (
+              select 
+               item
+              ,return_ratio
+              ,currency_ratio
+              ,rank() over (order by return_ratio) as return_rank
+              ,rank() over (order by currency_ratio) as currency_rank
+              from
+              (	select ws.ws_item_sk as item
+                ,(cast(sum(coalesce(wr.wr_return_quantity,0)) as decimal(15,4))/
+                cast(sum(coalesce(ws.ws_quantity,0)) as decimal(15,4) )) as return_ratio
+                ,(cast(sum(coalesce(wr.wr_return_amt,0)) as decimal(15,4))/
+                cast(sum(coalesce(ws.ws_net_paid,0)) as decimal(15,4) )) as currency_ratio
+                from 
+                 web_sales ws left outer join web_returns wr 
+                  on (ws.ws_order_number = wr.wr_order_number and 
+                  ws.ws_item_sk = wr.wr_item_sk)
+                            ,date_dim
+                where 
+                  wr.wr_return_amt &gt; 10000 
+                  and ws.ws_net_profit &gt; 1
+                                    and ws.ws_net_paid &gt; 0
+                                    and ws.ws_quantity &gt; 0
+                                    and ws.ws_sold_date_sk = date_dim.d_date_sk
+                                    and d_year = 2000
+                                    and d_moy = 12
+                group by ws.ws_item_sk
+              ) in_web
+            ) web
+            where 
+            (
+            web.return_rank &lt;= 10
+            or
+            web.currency_rank &lt;= 10
+            )
+            union all
+            select 
+            &apos;catalog&apos; as channel
+            ,catalog.item
+            ,catalog.return_ratio
+            ,catalog.return_rank
+            ,catalog.currency_rank
+            from (
+              select 
+               item
+              ,return_ratio
+              ,currency_ratio
+              ,rank() over (order by return_ratio) as return_rank
+              ,rank() over (order by currency_ratio) as currency_rank
+              from
+              (	select 
+                cs.cs_item_sk as item
+                ,(cast(sum(coalesce(cr.cr_return_quantity,0)) as decimal(15,4))/
+                cast(sum(coalesce(cs.cs_quantity,0)) as decimal(15,4) )) as return_ratio
+                ,(cast(sum(coalesce(cr.cr_return_amount,0)) as decimal(15,4))/
+                cast(sum(coalesce(cs.cs_net_paid,0)) as decimal(15,4) )) as currency_ratio
+                from 
+                catalog_sales cs left outer join catalog_returns cr
+                  on (cs.cs_order_number = cr.cr_order_number and 
+                  cs.cs_item_sk = cr.cr_item_sk)
+                           ,date_dim
+                where 
+                  cr.cr_return_amount &gt; 10000 
+                  and cs.cs_net_profit &gt; 1
+                                    and cs.cs_net_paid &gt; 0
+                                    and cs.cs_quantity &gt; 0
+                                    and cs_sold_date_sk = d_date_sk
+                                    and d_year = 2000
+                                    and d_moy = 12
+                            group by cs.cs_item_sk
+              ) in_cat
+            ) catalog
+            where 
+            (
+            catalog.return_rank &lt;= 10
+            or
+            catalog.currency_rank &lt;=10
+            )
+            union all
+            select 
+            &apos;store&apos; as channel
+            ,store.item
+            ,store.return_ratio
+            ,store.return_rank
+            ,store.currency_rank
+            from (
+              select 
+               item
+              ,return_ratio
+              ,currency_ratio
+              ,rank() over (order by return_ratio) as return_rank
+              ,rank() over (order by currency_ratio) as currency_rank
+              from
+              (	select sts.ss_item_sk as item
+                ,(cast(sum(coalesce(sr.sr_return_quantity,0)) as decimal(15,4))/cast(sum(coalesce(sts.ss_quantity,0)) as decimal(15,4) )) as return_ratio
+                ,(cast(sum(coalesce(sr.sr_return_amt,0)) as decimal(15,4))/cast(sum(coalesce(sts.ss_net_paid,0)) as decimal(15,4) )) as currency_ratio
+                from 
+                store_sales sts left outer join store_returns sr
+                  on (sts.ss_ticket_number = sr.sr_ticket_number and sts.ss_item_sk = sr.sr_item_sk)
+                           ,date_dim
+                where 
+                  sr.sr_return_amt &gt; 10000 
+                  and sts.ss_net_profit &gt; 1
+                                    and sts.ss_net_paid &gt; 0 
+                                    and sts.ss_quantity &gt; 0
+                                    and ss_sold_date_sk = d_date_sk
+                                    and d_year = 2000
+                                    and d_moy = 12
+                group by sts.ss_item_sk
+              ) in_store
+            ) store
+            where  (
+            store.return_rank &lt;= 10
+            or 
+            store.currency_rank &lt;= 10
+            )
+            order by 1,4,5
+            limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -780,7 +1323,48 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q51" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">WITH web_v1 as (
+            select
+              ws_item_sk item_sk, d_date, sum(ws_sales_price),
+              sum(sum(ws_sales_price))
+                  over (partition by ws_item_sk order by d_date rows between unbounded preceding and current row) cume_sales
+            from web_sales
+                ,date_dim
+            where ws_sold_date_sk=d_date_sk
+              and d_month_seq between 1193 and 1193+11
+              and ws_item_sk is not NULL
+            group by ws_item_sk, d_date),
+            store_v1 as (
+            select
+              ss_item_sk item_sk, d_date, sum(ss_sales_price),
+              sum(sum(ss_sales_price))
+                  over (partition by ss_item_sk order by d_date rows between unbounded preceding and current row) cume_sales
+            from store_sales
+                ,date_dim
+            where ss_sold_date_sk=d_date_sk
+              and d_month_seq between 1193 and 1193+11
+              and ss_item_sk is not NULL
+            group by ss_item_sk, d_date)
+             select  *
+            from (select item_sk
+                 ,d_date
+                 ,web_sales
+                 ,store_sales
+                 ,max(web_sales)
+                     over (partition by item_sk order by d_date rows between unbounded preceding and current row) web_cumulative
+                 ,max(store_sales)
+                     over (partition by item_sk order by d_date rows between unbounded preceding and current row) store_cumulative
+                 from (select case when web.item_sk is not null then web.item_sk else store.item_sk end item_sk
+                             ,case when web.d_date is not null then web.d_date else store.d_date end d_date
+                             ,web.cume_sales web_sales
+                             ,store.cume_sales store_sales
+                       from web_v1 web full outer join store_v1 store on (web.item_sk = store.item_sk
+                                                                      and web.d_date = store.d_date)
+                      )x )y
+            where web_cumulative &gt; store_cumulative
+            order by item_sk
+                    ,d_date
+            limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -794,7 +1378,25 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q52" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  dt.d_year
+            ,item.i_brand_id brand_id
+            ,item.i_brand brand
+            ,sum(ss_ext_sales_price) ext_price
+          from date_dim dt
+              ,store_sales
+              ,item
+          where dt.d_date_sk = store_sales.ss_sold_date_sk
+             and store_sales.ss_item_sk = item.i_item_sk
+             and item.i_manager_id = 1
+             and dt.d_moy=12
+             and dt.d_year=1998
+            group by dt.d_year
+            ,item.i_brand
+            ,item.i_brand_id
+          order by dt.d_year
+            ,ext_price desc
+            ,brand_id
+         limit 100 ;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -808,7 +1410,17 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q55" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  i_brand_id brand_id, i_brand brand,
+            sum(ss_ext_sales_price) ext_price
+          from date_dim, store_sales, item
+          where date_dim.d_date_sk = store_sales.ss_sold_date_sk
+            and store_sales.ss_item_sk = item.i_item_sk
+            and i_manager_id=36
+            and d_moy=12
+            and d_year=2001
+          group by i_brand, i_brand_id
+          order by ext_price desc, i_brand_id
+         limit 100 ;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -822,7 +1434,71 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q56" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">with ss as (
+            select i_item_id,sum(ss_ext_sales_price) total_sales
+            from
+                   store_sales,
+                   date_dim,
+                    customer_address,
+                    item
+            where item.i_item_id in (select
+                i.i_item_id
+           from item i
+           where i_color in (&apos;purple&apos;,&apos;burlywood&apos;,&apos;indian&apos;))
+            and     ss_item_sk              = i_item_sk
+            and     ss_sold_date_sk         = d_date_sk
+            and     d_year                  = 2001
+            and     d_moy                   = 1
+            and     ss_addr_sk              = ca_address_sk
+            and     ca_gmt_offset           = -6 
+            group by i_item_id),
+            cs as (
+            select i_item_id,sum(cs_ext_sales_price) total_sales
+            from
+                   catalog_sales,
+                   date_dim,
+                    customer_address,
+                    item
+            where
+                    item.i_item_id               in (select
+             i.i_item_id
+           from item i
+           where i_color in (&apos;purple&apos;,&apos;burlywood&apos;,&apos;indian&apos;))
+            and     cs_item_sk              = i_item_sk
+            and     cs_sold_date_sk         = d_date_sk
+            and     d_year                  = 2001
+            and     d_moy                   = 1
+            and     cs_bill_addr_sk         = ca_address_sk
+            and     ca_gmt_offset           = -6 
+            group by i_item_id),
+            ws as (
+            select i_item_id,sum(ws_ext_sales_price) total_sales
+            from
+                   web_sales,
+                   date_dim,
+                    customer_address,
+                    item
+            where
+                    item.i_item_id               in (select
+             i.i_item_id
+           from item i
+           where i_color in (&apos;purple&apos;,&apos;burlywood&apos;,&apos;indian&apos;))
+            and     ws_item_sk              = i_item_sk
+            and     ws_sold_date_sk         = d_date_sk
+            and     d_year                  = 2001
+            and     d_moy                   = 1
+            and     ws_bill_addr_sk         = ca_address_sk
+            and     ca_gmt_offset           = -6
+            group by i_item_id)
+             select  i_item_id ,sum(total_sales) total_sales
+            from  (select * from ss 
+                   union all
+                   select * from cs 
+                   union all
+                   select * from ws) tmp1
+            group by i_item_id
+            order by total_sales
+            limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -836,7 +1512,81 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q60" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">with ss as (
+            select
+                     i_item_id,sum(ss_ext_sales_price) total_sales
+            from
+                   store_sales,
+                   date_dim,
+                    customer_address,
+                    item
+            where
+                    item.i_item_id in (select
+             i.i_item_id
+           from
+            item i
+           where i_category in (&apos;Children&apos;))
+            and     ss_item_sk              = i_item_sk
+            and     ss_sold_date_sk         = d_date_sk
+            and     d_year                  = 1999
+            and     d_moy                   = 9
+            and     ss_addr_sk              = ca_address_sk
+            and     ca_gmt_offset           = -6 
+            group by i_item_id),
+            cs as (
+            select
+                     i_item_id,sum(cs_ext_sales_price) total_sales
+            from
+                   catalog_sales,
+                   date_dim,
+                    customer_address,
+                    item
+            where
+                    item.i_item_id               in (select
+             i.i_item_id
+           from
+            item i
+           where i_category in (&apos;Children&apos;))
+            and     cs_item_sk              = i_item_sk
+            and     cs_sold_date_sk         = d_date_sk
+            and     d_year                  = 1999
+            and     d_moy                   = 9
+            and     cs_bill_addr_sk         = ca_address_sk
+            and     ca_gmt_offset           = -6 
+            group by i_item_id),
+            ws as (
+            select
+                     i_item_id,sum(ws_ext_sales_price) total_sales
+            from
+                   web_sales,
+                   date_dim,
+                    customer_address,
+                    item
+            where
+                    item.i_item_id               in (select
+             i.i_item_id
+           from
+            item i
+           where i_category in (&apos;Children&apos;))
+            and     ws_item_sk              = i_item_sk
+            and     ws_sold_date_sk         = d_date_sk
+            and     d_year                  = 1999
+            and     d_moy                   = 9
+            and     ws_bill_addr_sk         = ca_address_sk
+            and     ca_gmt_offset           = -6
+            group by i_item_id)
+             select   
+             i_item_id
+           ,sum(total_sales) total_sales
+            from  (select * from ss 
+                   union all
+                   select * from cs 
+                   union all
+                   select * from ws) tmp1
+            group by i_item_id
+            order by i_item_id
+                 ,total_sales
+            limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -850,7 +1600,32 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q63" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  * 
+            from (select i_manager_id
+                         ,sum(ss_sales_price) sum_sales
+                         ,avg(sum(ss_sales_price)) over (partition by i_manager_id) avg_monthly_sales
+                  from item
+                      ,store_sales
+                      ,date_dim
+                      ,store
+                  where ss_item_sk = i_item_sk
+                    and ss_sold_date_sk = d_date_sk
+                    and ss_store_sk = s_store_sk
+                    and d_month_seq in (1212,1212+1,1212+2,1212+3,1212+4,1212+5,1212+6,1212+7,1212+8,1212+9,1212+10,1212+11)
+                    and ((    i_category in (&apos;Books&apos;,&apos;Children&apos;,&apos;Electronics&apos;)
+                          and i_class in (&apos;personal&apos;,&apos;portable&apos;,&apos;refernece&apos;,&apos;self-help&apos;)
+                          and i_brand in (&apos;scholaramalgamalg #14&apos;,&apos;scholaramalgamalg #7&apos;,
+                                  &apos;exportiunivamalg #9&apos;,&apos;scholaramalgamalg #9&apos;))
+                       or(    i_category in (&apos;Women&apos;,&apos;Music&apos;,&apos;Men&apos;)
+                          and i_class in (&apos;accessories&apos;,&apos;classical&apos;,&apos;fragrances&apos;,&apos;pants&apos;)
+                          and i_brand in (&apos;amalgimporto #1&apos;,&apos;edu packscholar #1&apos;,&apos;exportiimporto #1&apos;,
+                                 &apos;importoamalg #1&apos;)))
+            group by i_manager_id, d_moy) tmp1
+            where case when avg_monthly_sales &gt; 0 then abs (sum_sales - avg_monthly_sales) / avg_monthly_sales else null end &gt; 0.1
+            order by i_manager_id
+                    ,avg_monthly_sales
+                    ,sum_sales
+            limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -864,7 +1639,102 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q64" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select cs1.product_name ,cs1.store_name ,cs1.store_zip ,cs1.b_street_number ,cs1.b_streen_name ,cs1.b_city
+            ,cs1.b_zip ,cs1.c_street_number ,cs1.c_street_name ,cs1.c_city ,cs1.c_zip ,cs1.syear ,cs1.cnt
+            ,cs1.s1 ,cs1.s2 ,cs1.s3
+            ,cs2.s1 ,cs2.s2 ,cs2.s3 ,cs2.syear ,cs2.cnt
+       from
+       (select i_product_name as product_name ,i_item_sk as item_sk ,s_store_name as store_name
+            ,s_zip as store_zip ,ad1.ca_street_number as b_street_number ,ad1.ca_street_name as b_streen_name
+            ,ad1.ca_city as b_city ,ad1.ca_zip as b_zip ,ad2.ca_street_number as c_street_number
+            ,ad2.ca_street_name as c_street_name ,ad2.ca_city as c_city ,ad2.ca_zip as c_zip
+            ,d1.d_year as syear ,d2.d_year as fsyear ,d3.d_year as s2year ,count(*) as cnt
+            ,sum(ss_wholesale_cost) as s1 ,sum(ss_list_price) as s2 ,sum(ss_coupon_amt) as s3
+         FROM   store_sales
+               JOIN store_returns ON store_sales.ss_item_sk = store_returns.sr_item_sk and store_sales.ss_ticket_number = store_returns.sr_ticket_number
+               JOIN customer ON store_sales.ss_customer_sk = customer.c_customer_sk
+               JOIN date_dim d1 ON store_sales.ss_sold_date_sk = d1.d_date_sk
+               JOIN date_dim d2 ON customer.c_first_sales_date_sk = d2.d_date_sk 
+               JOIN date_dim d3 ON customer.c_first_shipto_date_sk = d3.d_date_sk
+               JOIN store ON store_sales.ss_store_sk = store.s_store_sk
+               JOIN customer_demographics cd1 ON store_sales.ss_cdemo_sk= cd1.cd_demo_sk
+               JOIN customer_demographics cd2 ON customer.c_current_cdemo_sk = cd2.cd_demo_sk
+               JOIN promotion ON store_sales.ss_promo_sk = promotion.p_promo_sk
+               JOIN household_demographics hd1 ON store_sales.ss_hdemo_sk = hd1.hd_demo_sk
+               JOIN household_demographics hd2 ON customer.c_current_hdemo_sk = hd2.hd_demo_sk
+               JOIN customer_address ad1 ON store_sales.ss_addr_sk = ad1.ca_address_sk
+               JOIN customer_address ad2 ON customer.c_current_addr_sk = ad2.ca_address_sk
+               JOIN income_band ib1 ON hd1.hd_income_band_sk = ib1.ib_income_band_sk
+               JOIN income_band ib2 ON hd2.hd_income_band_sk = ib2.ib_income_band_sk
+               JOIN item ON store_sales.ss_item_sk = item.i_item_sk
+               JOIN
+        (select cs_item_sk
+               ,sum(cs_ext_list_price) as sale,sum(cr_refunded_cash+cr_reversed_charge+cr_store_credit) as refund
+         from catalog_sales JOIN catalog_returns
+         ON catalog_sales.cs_item_sk = catalog_returns.cr_item_sk
+           and catalog_sales.cs_order_number = catalog_returns.cr_order_number
+         group by cs_item_sk
+         having sum(cs_ext_list_price)&gt;2*sum(cr_refunded_cash+cr_reversed_charge+cr_store_credit)) cs_ui
+       ON store_sales.ss_item_sk = cs_ui.cs_item_sk
+         WHERE  
+                cd1.cd_marital_status &lt;&gt; cd2.cd_marital_status and
+                i_color in (&apos;maroon&apos;,&apos;burnished&apos;,&apos;dim&apos;,&apos;steel&apos;,&apos;navajo&apos;,&apos;chocolate&apos;) and
+                i_current_price between 35 and 35 + 10 and
+                i_current_price between 35 + 1 and 35 + 15
+       group by i_product_name ,i_item_sk ,s_store_name ,s_zip ,ad1.ca_street_number
+              ,ad1.ca_street_name ,ad1.ca_city ,ad1.ca_zip ,ad2.ca_street_number
+              ,ad2.ca_street_name ,ad2.ca_city ,ad2.ca_zip ,d1.d_year ,d2.d_year ,d3.d_year
+       ) cs1
+       JOIN
+       (select i_product_name as product_name ,i_item_sk as item_sk ,s_store_name as store_name
+            ,s_zip as store_zip ,ad1.ca_street_number as b_street_number ,ad1.ca_street_name as b_streen_name
+            ,ad1.ca_city as b_city ,ad1.ca_zip as b_zip ,ad2.ca_street_number as c_street_number
+            ,ad2.ca_street_name as c_street_name ,ad2.ca_city as c_city ,ad2.ca_zip as c_zip
+            ,d1.d_year as syear ,d2.d_year as fsyear ,d3.d_year as s2year ,count(*) as cnt
+            ,sum(ss_wholesale_cost) as s1 ,sum(ss_list_price) as s2 ,sum(ss_coupon_amt) as s3
+         FROM   store_sales
+               JOIN store_returns ON store_sales.ss_item_sk = store_returns.sr_item_sk and store_sales.ss_ticket_number = store_returns.sr_ticket_number
+               JOIN customer ON store_sales.ss_customer_sk = customer.c_customer_sk
+               JOIN date_dim d1 ON store_sales.ss_sold_date_sk = d1.d_date_sk
+               JOIN date_dim d2 ON customer.c_first_sales_date_sk = d2.d_date_sk 
+               JOIN date_dim d3 ON customer.c_first_shipto_date_sk = d3.d_date_sk
+               JOIN store ON store_sales.ss_store_sk = store.s_store_sk
+               JOIN customer_demographics cd1 ON store_sales.ss_cdemo_sk= cd1.cd_demo_sk
+               JOIN customer_demographics cd2 ON customer.c_current_cdemo_sk = cd2.cd_demo_sk
+               JOIN promotion ON store_sales.ss_promo_sk = promotion.p_promo_sk
+               JOIN household_demographics hd1 ON store_sales.ss_hdemo_sk = hd1.hd_demo_sk
+               JOIN household_demographics hd2 ON customer.c_current_hdemo_sk = hd2.hd_demo_sk
+               JOIN customer_address ad1 ON store_sales.ss_addr_sk = ad1.ca_address_sk
+               JOIN customer_address ad2 ON customer.c_current_addr_sk = ad2.ca_address_sk
+               JOIN income_band ib1 ON hd1.hd_income_band_sk = ib1.ib_income_band_sk
+               JOIN income_band ib2 ON hd2.hd_income_band_sk = ib2.ib_income_band_sk
+               JOIN item ON store_sales.ss_item_sk = item.i_item_sk
+               JOIN
+        (select cs_item_sk
+               ,sum(cs_ext_list_price) as sale,sum(cr_refunded_cash+cr_reversed_charge+cr_store_credit) as refund
+         from catalog_sales JOIN catalog_returns
+         ON catalog_sales.cs_item_sk = catalog_returns.cr_item_sk
+           and catalog_sales.cs_order_number = catalog_returns.cr_order_number
+         group by cs_item_sk
+         having sum(cs_ext_list_price)&gt;2*sum(cr_refunded_cash+cr_reversed_charge+cr_store_credit)) cs_ui
+       ON store_sales.ss_item_sk = cs_ui.cs_item_sk
+         WHERE  
+                cd1.cd_marital_status &lt;&gt; cd2.cd_marital_status and
+                i_color in (&apos;maroon&apos;,&apos;burnished&apos;,&apos;dim&apos;,&apos;steel&apos;,&apos;navajo&apos;,&apos;chocolate&apos;) and
+                i_current_price between 35 and 35 + 10 and
+                i_current_price between 35 + 1 and 35 + 15
+       group by i_product_name ,i_item_sk ,s_store_name ,s_zip ,ad1.ca_street_number
+              ,ad1.ca_street_name ,ad1.ca_city ,ad1.ca_zip ,ad2.ca_street_number
+              ,ad2.ca_street_name ,ad2.ca_city ,ad2.ca_zip ,d1.d_year ,d2.d_year ,d3.d_year
+       ) cs2
+       ON cs1.item_sk=cs2.item_sk
+       where 
+            cs1.syear = 2000 and
+            cs2.syear = 2000 + 1 and
+            cs2.cnt &lt;= cs1.cnt and
+            cs1.store_name = cs2.store_name and
+            cs1.store_zip = cs2.store_zip
+       order by cs1.product_name ,cs1.store_name ,cs2.cnt;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -878,7 +1748,43 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q65" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select 
+            s_store_name,
+            i_item_desc,
+            sc.revenue,
+            i_current_price,
+            i_wholesale_cost,
+            i_brand
+        from
+            store,
+            item,
+            (select 
+                ss_store_sk, avg(revenue) as ave
+            from
+                (select 
+                ss_store_sk, ss_item_sk, sum(ss_sales_price) as revenue
+            from
+                store_sales, date_dim
+            where
+                ss_sold_date_sk = d_date_sk
+                    and d_month_seq between 1212 and 1212 + 11
+            group by ss_store_sk , ss_item_sk) sa
+            group by ss_store_sk) sb,
+            (select 
+                ss_store_sk, ss_item_sk, sum(ss_sales_price) as revenue
+            from
+                store_sales, date_dim
+            where
+                ss_sold_date_sk = d_date_sk
+                    and d_month_seq between 1212 and 1212 + 11
+            group by ss_store_sk , ss_item_sk) sc
+        where
+            sb.ss_store_sk = sc.ss_store_sk
+                and sc.revenue &lt;= 0.1 * sb.ave
+                and s_store_sk = sc.ss_store_sk
+                and i_item_sk = sc.ss_item_sk
+        order by s_store_name , i_item_desc
+        limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -892,7 +1798,223 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q66" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select   
+            w_warehouse_name
+      ,w_warehouse_sq_ft
+      ,w_city
+      ,w_county
+      ,w_state
+      ,w_country
+           ,ship_carriers
+           ,year
+      ,sum(jan_sales) as jan_sales
+      ,sum(feb_sales) as feb_sales
+      ,sum(mar_sales) as mar_sales
+      ,sum(apr_sales) as apr_sales
+      ,sum(may_sales) as may_sales
+      ,sum(jun_sales) as jun_sales
+      ,sum(jul_sales) as jul_sales
+      ,sum(aug_sales) as aug_sales
+      ,sum(sep_sales) as sep_sales
+      ,sum(oct_sales) as oct_sales
+      ,sum(nov_sales) as nov_sales
+      ,sum(dec_sales) as dec_sales
+      ,sum(jan_sales/w_warehouse_sq_ft) as jan_sales_per_sq_foot
+      ,sum(feb_sales/w_warehouse_sq_ft) as feb_sales_per_sq_foot
+      ,sum(mar_sales/w_warehouse_sq_ft) as mar_sales_per_sq_foot
+      ,sum(apr_sales/w_warehouse_sq_ft) as apr_sales_per_sq_foot
+      ,sum(may_sales/w_warehouse_sq_ft) as may_sales_per_sq_foot
+      ,sum(jun_sales/w_warehouse_sq_ft) as jun_sales_per_sq_foot
+      ,sum(jul_sales/w_warehouse_sq_ft) as jul_sales_per_sq_foot
+      ,sum(aug_sales/w_warehouse_sq_ft) as aug_sales_per_sq_foot
+      ,sum(sep_sales/w_warehouse_sq_ft) as sep_sales_per_sq_foot
+      ,sum(oct_sales/w_warehouse_sq_ft) as oct_sales_per_sq_foot
+      ,sum(nov_sales/w_warehouse_sq_ft) as nov_sales_per_sq_foot
+      ,sum(dec_sales/w_warehouse_sq_ft) as dec_sales_per_sq_foot
+      ,sum(jan_net) as jan_net
+      ,sum(feb_net) as feb_net
+      ,sum(mar_net) as mar_net
+      ,sum(apr_net) as apr_net
+      ,sum(may_net) as may_net
+      ,sum(jun_net) as jun_net
+      ,sum(jul_net) as jul_net
+      ,sum(aug_net) as aug_net
+      ,sum(sep_net) as sep_net
+      ,sum(oct_net) as oct_net
+      ,sum(nov_net) as nov_net
+      ,sum(dec_net) as dec_net
+    from (
+       select 
+      w_warehouse_name
+      ,w_warehouse_sq_ft
+      ,w_city
+      ,w_county
+      ,w_state
+      ,w_country
+      ,concat(&apos;DIAMOND&apos;, &apos;,&apos;, &apos;AIRBORNE&apos;) as ship_carriers
+           ,d_year as year
+      ,sum(case when d_moy = 1 
+        then ws_sales_price* ws_quantity else 0 end) as jan_sales
+      ,sum(case when d_moy = 2 
+        then ws_sales_price* ws_quantity else 0 end) as feb_sales
+      ,sum(case when d_moy = 3 
+        then ws_sales_price* ws_quantity else 0 end) as mar_sales
+      ,sum(case when d_moy = 4 
+        then ws_sales_price* ws_quantity else 0 end) as apr_sales
+      ,sum(case when d_moy = 5 
+        then ws_sales_price* ws_quantity else 0 end) as may_sales
+      ,sum(case when d_moy = 6 
+        then ws_sales_price* ws_quantity else 0 end) as jun_sales
+      ,sum(case when d_moy = 7 
+        then ws_sales_price* ws_quantity else 0 end) as jul_sales
+      ,sum(case when d_moy = 8 
+        then ws_sales_price* ws_quantity else 0 end) as aug_sales
+      ,sum(case when d_moy = 9 
+        then ws_sales_price* ws_quantity else 0 end) as sep_sales
+      ,sum(case when d_moy = 10 
+        then ws_sales_price* ws_quantity else 0 end) as oct_sales
+      ,sum(case when d_moy = 11
+        then ws_sales_price* ws_quantity else 0 end) as nov_sales
+      ,sum(case when d_moy = 12
+        then ws_sales_price* ws_quantity else 0 end) as dec_sales
+      ,sum(case when d_moy = 1 
+        then ws_net_paid_inc_tax * ws_quantity else 0 end) as jan_net
+      ,sum(case when d_moy = 2
+        then ws_net_paid_inc_tax * ws_quantity else 0 end) as feb_net
+      ,sum(case when d_moy = 3 
+        then ws_net_paid_inc_tax * ws_quantity else 0 end) as mar_net
+      ,sum(case when d_moy = 4 
+        then ws_net_paid_inc_tax * ws_quantity else 0 end) as apr_net
+      ,sum(case when d_moy = 5 
+        then ws_net_paid_inc_tax * ws_quantity else 0 end) as may_net
+      ,sum(case when d_moy = 6 
+        then ws_net_paid_inc_tax * ws_quantity else 0 end) as jun_net
+      ,sum(case when d_moy = 7 
+        then ws_net_paid_inc_tax * ws_quantity else 0 end) as jul_net
+      ,sum(case when d_moy = 8 
+        then ws_net_paid_inc_tax * ws_quantity else 0 end) as aug_net
+      ,sum(case when d_moy = 9 
+        then ws_net_paid_inc_tax * ws_quantity else 0 end) as sep_net
+      ,sum(case when d_moy = 10 
+        then ws_net_paid_inc_tax * ws_quantity else 0 end) as oct_net
+      ,sum(case when d_moy = 11
+        then ws_net_paid_inc_tax * ws_quantity else 0 end) as nov_net
+      ,sum(case when d_moy = 12
+        then ws_net_paid_inc_tax * ws_quantity else 0 end) as dec_net
+        from
+             web_sales
+            ,warehouse
+            ,date_dim
+            ,time_dim
+        ,ship_mode
+        where
+               web_sales.ws_warehouse_sk =  warehouse.w_warehouse_sk
+           and web_sales.ws_sold_date_sk = date_dim.d_date_sk
+           and web_sales.ws_sold_time_sk = time_dim.t_time_sk
+      and web_sales.ws_ship_mode_sk = ship_mode.sm_ship_mode_sk
+           and d_year = 2002
+      and t_time between 49530 and 49530+28800 
+      and sm_carrier in (&apos;DIAMOND&apos;,&apos;AIRBORNE&apos;)
+        group by 
+           w_warehouse_name
+      ,w_warehouse_sq_ft
+      ,w_city
+      ,w_county
+      ,w_state
+      ,w_country
+          ,d_year
+    union all
+       select 
+      w_warehouse_name
+      ,w_warehouse_sq_ft
+      ,w_city
+      ,w_county
+      ,w_state
+      ,w_country
+           ,concat(&apos;DIAMOND&apos;, &apos;,&apos;, &apos;AIRBORNE&apos;) as ship_carriers
+          ,d_year as year
+      ,sum(case when d_moy = 1 
+        then cs_ext_sales_price* cs_quantity else 0 end) as jan_sales
+      ,sum(case when d_moy = 2 
+        then cs_ext_sales_price* cs_quantity else 0 end) as feb_sales
+      ,sum(case when d_moy = 3 
+        then cs_ext_sales_price* cs_quantity else 0 end) as mar_sales
+      ,sum(case when d_moy = 4 
+        then cs_ext_sales_price* cs_quantity else 0 end) as apr_sales
+      ,sum(case when d_moy = 5 
+        then cs_ext_sales_price* cs_quantity else 0 end) as may_sales
+      ,sum(case when d_moy = 6 
+        then cs_ext_sales_price* cs_quantity else 0 end) as jun_sales
+      ,sum(case when d_moy = 7 
+        then cs_ext_sales_price* cs_quantity else 0 end) as jul_sales
+      ,sum(case when d_moy = 8 
+        then cs_ext_sales_price* cs_quantity else 0 end) as aug_sales
+      ,sum(case when d_moy = 9 
+        then cs_ext_sales_price* cs_quantity else 0 end) as sep_sales
+      ,sum(case when d_moy = 10 
+        then cs_ext_sales_price* cs_quantity else 0 end) as oct_sales
+      ,sum(case when d_moy = 11
+        then cs_ext_sales_price* cs_quantity else 0 end) as nov_sales
+      ,sum(case when d_moy = 12
+        then cs_ext_sales_price* cs_quantity else 0 end) as dec_sales
+      ,sum(case when d_moy = 1 
+        then cs_net_paid_inc_ship_tax * cs_quantity else 0 end) as jan_net
+      ,sum(case when d_moy = 2 
+        then cs_net_paid_inc_ship_tax * cs_quantity else 0 end) as feb_net
+      ,sum(case when d_moy = 3 
+        then cs_net_paid_inc_ship_tax * cs_quantity else 0 end) as mar_net
+      ,sum(case when d_moy = 4 
+        then cs_net_paid_inc_ship_tax * cs_quantity else 0 end) as apr_net
+      ,sum(case when d_moy = 5 
+        then cs_net_paid_inc_ship_tax * cs_quantity else 0 end) as may_net
+      ,sum(case when d_moy = 6 
+        then cs_net_paid_inc_ship_tax * cs_quantity else 0 end) as jun_net
+      ,sum(case when d_moy = 7 
+        then cs_net_paid_inc_ship_tax * cs_quantity else 0 end) as jul_net
+      ,sum(case when d_moy = 8 
+        then cs_net_paid_inc_ship_tax * cs_quantity else 0 end) as aug_net
+      ,sum(case when d_moy = 9 
+        then cs_net_paid_inc_ship_tax * cs_quantity else 0 end) as sep_net
+      ,sum(case when d_moy = 10 
+        then cs_net_paid_inc_ship_tax * cs_quantity else 0 end) as oct_net
+      ,sum(case when d_moy = 11
+        then cs_net_paid_inc_ship_tax * cs_quantity else 0 end) as nov_net
+      ,sum(case when d_moy = 12
+        then cs_net_paid_inc_ship_tax * cs_quantity else 0 end) as dec_net
+        from
+             catalog_sales
+            ,warehouse
+            ,date_dim
+            ,time_dim
+       ,ship_mode
+        where
+               catalog_sales.cs_warehouse_sk =  warehouse.w_warehouse_sk
+           and catalog_sales.cs_sold_date_sk = date_dim.d_date_sk
+           and catalog_sales.cs_sold_time_sk = time_dim.t_time_sk
+      and catalog_sales.cs_ship_mode_sk = ship_mode.sm_ship_mode_sk
+           and d_year = 2002
+      and t_time between 49530 AND 49530+28800 
+      and sm_carrier in (&apos;DIAMOND&apos;,&apos;AIRBORNE&apos;)
+        group by 
+           w_warehouse_name
+      ,w_warehouse_sq_ft
+      ,w_city
+      ,w_county
+      ,w_state
+      ,w_country
+          ,d_year
+    ) x
+    group by 
+           w_warehouse_name
+      ,w_warehouse_sq_ft
+      ,w_city
+      ,w_county
+      ,w_state
+      ,w_country
+      ,ship_carriers
+          ,year
+    order by w_warehouse_name
+    limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -906,7 +2028,45 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q68" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  c_last_name
+            ,c_first_name
+            ,ca_city
+            ,bought_city
+            ,ss_ticket_number
+            ,extended_price
+            ,extended_tax
+            ,list_price
+      from (select ss_ticket_number
+                  ,ss_customer_sk
+                  ,ca_city bought_city
+                  ,sum(ss_ext_sales_price) extended_price 
+                  ,sum(ss_ext_list_price) list_price
+                  ,sum(ss_ext_tax) extended_tax 
+            from store_sales
+                ,date_dim
+                ,store
+                ,household_demographics
+                ,customer_address 
+            where store_sales.ss_sold_date_sk = date_dim.d_date_sk
+              and store_sales.ss_store_sk = store.s_store_sk  
+             and store_sales.ss_hdemo_sk = household_demographics.hd_demo_sk
+             and store_sales.ss_addr_sk = customer_address.ca_address_sk
+             and date_dim.d_dom between 1 and 2 
+             and (household_demographics.hd_dep_count = 4 or
+                  household_demographics.hd_vehicle_count= 2)
+             and date_dim.d_year in (1998,1998+1,1998+2)
+             and store.s_city in (&apos;Rosedale&apos;,&apos;Bethlehem&apos;)
+            group by ss_ticket_number
+                    ,ss_customer_sk
+                    ,ss_addr_sk,ca_city) dn
+           ,customer
+           ,customer_address current_addr
+      where dn.ss_customer_sk = customer.c_customer_sk
+        and customer.c_current_addr_sk = current_addr.ca_address_sk
+        and current_addr.ca_city &lt;&gt; bought_city
+      order by c_last_name
+              ,ss_ticket_number
+      limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -920,7 +2080,42 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q71" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select i_brand_id brand_id, i_brand brand,t_hour,t_minute,
+            sum(ext_price) ext_price
+          from item JOIN (select ws_ext_sales_price as ext_price, 
+                                 ws_sold_date_sk as sold_date_sk,
+                                 ws_item_sk as sold_item_sk,
+                                 ws_sold_time_sk as time_sk  
+                          from web_sales,date_dim
+                          where date_dim.d_date_sk = web_sales.ws_sold_date_sk
+                            and d_moy=12
+                            and d_year=2001
+                          union all
+                          select cs_ext_sales_price as ext_price,
+                                 cs_sold_date_sk as sold_date_sk,
+                                 cs_item_sk as sold_item_sk,
+                                 cs_sold_time_sk as time_sk
+                          from catalog_sales,date_dim
+                          where date_dim.d_date_sk = catalog_sales.cs_sold_date_sk
+                            and d_moy=12
+                            and d_year=2001
+                          union all
+                          select ss_ext_sales_price as ext_price,
+                                 ss_sold_date_sk as sold_date_sk,
+                                 ss_item_sk as sold_item_sk,
+                                 ss_sold_time_sk as time_sk
+                          from store_sales,date_dim
+                          where date_dim.d_date_sk = store_sales.ss_sold_date_sk
+                            and d_moy=12
+                            and d_year=2001
+                          ) tmp ON tmp.sold_item_sk = item.i_item_sk
+          JOIN time_dim ON tmp.time_sk = time_dim.t_time_sk
+          where
+                i_manager_id=1
+            and (t_meal_time = &apos;breakfast&apos; or t_meal_time = &apos;dinner&apos;)
+          group by i_brand, i_brand_id,t_hour,t_minute
+          order by ext_price desc, i_brand_id
+          ;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -934,7 +2129,31 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q73" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select c_last_name
+            ,c_first_name
+            ,c_salutation
+            ,c_preferred_cust_flag 
+            ,ss_ticket_number
+            ,cnt from
+        (select ss_ticket_number
+               ,ss_customer_sk
+               ,count(*) cnt
+         from store_sales,date_dim,store,household_demographics
+         where store_sales.ss_sold_date_sk = date_dim.d_date_sk
+         and store_sales.ss_store_sk = store.s_store_sk  
+         and store_sales.ss_hdemo_sk = household_demographics.hd_demo_sk
+         and date_dim.d_dom between 1 and 2 
+         and (household_demographics.hd_buy_potential = &apos;1001-5000&apos; or
+              household_demographics.hd_buy_potential = &apos;5001-10000&apos;)
+         and household_demographics.hd_vehicle_count &gt; 0
+         and case when household_demographics.hd_vehicle_count &gt; 0 then 
+                  household_demographics.hd_dep_count/ household_demographics.hd_vehicle_count else null end &gt; 1
+         and date_dim.d_year in (1998,1998+1,1998+2)
+         and store.s_county in (&apos;Kittitas County&apos;,&apos;Adams County&apos;,&apos;Richland County&apos;,&apos;Furnas County&apos;)
+         group by ss_ticket_number,ss_customer_sk) dj,customer
+         where dj.ss_customer_sk = customer.c_customer_sk
+           and cnt between 1 and 5
+         order by cnt desc;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -948,7 +2167,73 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q75" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">WITH all_sales AS (
+            SELECT d_year
+                  ,i_brand_id
+                  ,i_class_id
+                  ,i_category_id
+                  ,i_manufact_id
+                  ,SUM(sales_cnt) AS sales_cnt
+                  ,SUM(sales_amt) AS sales_amt
+            FROM (SELECT d_year
+                        ,i_brand_id
+                        ,i_class_id
+                        ,i_category_id
+                        ,i_manufact_id
+                        ,cs_quantity - COALESCE(cr_return_quantity,0) AS sales_cnt
+                        ,cs_ext_sales_price - COALESCE(cr_return_amount,0.0) AS sales_amt
+                  FROM catalog_sales JOIN item ON i_item_sk=cs_item_sk
+                                     JOIN date_dim ON d_date_sk=cs_sold_date_sk
+                                     LEFT JOIN catalog_returns ON (cs_order_number=cr_order_number 
+                                                               AND cs_item_sk=cr_item_sk)
+                  WHERE i_category=&apos;Sports&apos;
+                  UNION ALL
+                  SELECT d_year
+                        ,i_brand_id
+                        ,i_class_id
+                        ,i_category_id
+                        ,i_manufact_id
+                        ,ss_quantity - COALESCE(sr_return_quantity,0) AS sales_cnt
+                        ,ss_ext_sales_price - COALESCE(sr_return_amt,0.0) AS sales_amt
+                  FROM store_sales JOIN item ON i_item_sk=ss_item_sk
+                                   JOIN date_dim ON d_date_sk=ss_sold_date_sk
+                                   LEFT JOIN store_returns ON (ss_ticket_number=sr_ticket_number 
+                                                           AND ss_item_sk=sr_item_sk)
+                  WHERE i_category=&apos;Sports&apos;
+                  UNION ALL
+                  SELECT d_year
+                        ,i_brand_id
+                        ,i_class_id
+                        ,i_category_id
+                        ,i_manufact_id
+                        ,ws_quantity - COALESCE(wr_return_quantity,0) AS sales_cnt
+                        ,ws_ext_sales_price - COALESCE(wr_return_amt,0.0) AS sales_amt
+                  FROM web_sales JOIN item ON i_item_sk=ws_item_sk
+                                 JOIN date_dim ON d_date_sk=ws_sold_date_sk
+                                 LEFT JOIN web_returns ON (ws_order_number=wr_order_number 
+                                                       AND ws_item_sk=wr_item_sk)
+                  WHERE i_category=&apos;Sports&apos;) sales_detail
+            GROUP BY d_year, i_brand_id, i_class_id, i_category_id, i_manufact_id)
+            SELECT  prev_yr.d_year AS prev_year
+                                     ,curr_yr.d_year AS year
+                                     ,curr_yr.i_brand_id
+                                     ,curr_yr.i_class_id
+                                     ,curr_yr.i_category_id
+                                     ,curr_yr.i_manufact_id
+                                     ,prev_yr.sales_cnt AS prev_yr_cnt
+                                     ,curr_yr.sales_cnt AS curr_yr_cnt
+                                     ,curr_yr.sales_cnt-prev_yr.sales_cnt AS sales_cnt_diff
+                                     ,curr_yr.sales_amt-prev_yr.sales_amt AS sales_amt_diff
+            FROM all_sales curr_yr, all_sales prev_yr
+            WHERE curr_yr.i_brand_id=prev_yr.i_brand_id
+              AND curr_yr.i_class_id=prev_yr.i_class_id
+              AND curr_yr.i_category_id=prev_yr.i_category_id
+              AND curr_yr.i_manufact_id=prev_yr.i_manufact_id
+              AND curr_yr.d_year=2002
+              AND prev_yr.d_year=2002-1
+              AND CAST(curr_yr.sales_cnt AS DECIMAL(17,2))/CAST(prev_yr.sales_cnt AS DECIMAL(17,2))&lt;0.9
+            ORDER BY sales_cnt_diff
+            limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -962,7 +2247,27 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q76" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  channel, col_name, d_year, d_qoy, i_category, COUNT(*) sales_cnt, SUM(ext_sales_price) sales_amt FROM (
+            SELECT &apos;store&apos; as channel, &apos;ss_addr_sk&apos; col_name, d_year, d_qoy, i_category, ss_ext_sales_price ext_sales_price
+             FROM store_sales, item, date_dim
+             WHERE ss_addr_sk IS NULL
+               AND store_sales.ss_sold_date_sk=date_dim.d_date_sk
+               AND store_sales.ss_item_sk=item.i_item_sk
+            UNION ALL
+            SELECT &apos;web&apos; as channel, &apos;ws_web_page_sk&apos; col_name, d_year, d_qoy, i_category, ws_ext_sales_price ext_sales_price
+             FROM web_sales, item, date_dim
+             WHERE ws_web_page_sk IS NULL
+               AND web_sales.ws_sold_date_sk=date_dim.d_date_sk
+               AND web_sales.ws_item_sk=item.i_item_sk
+            UNION ALL
+            SELECT &apos;catalog&apos; as channel, &apos;cs_warehouse_sk&apos; col_name, d_year, d_qoy, i_category, cs_ext_sales_price ext_sales_price
+             FROM catalog_sales, item, date_dim
+             WHERE cs_warehouse_sk IS NULL
+               AND catalog_sales.cs_sold_date_sk=date_dim.d_date_sk
+               AND catalog_sales.cs_item_sk=item.i_item_sk) foo
+    GROUP BY channel, col_name, d_year, d_qoy, i_category
+    ORDER BY channel, col_name, d_year, d_qoy, i_category
+    limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -976,7 +2281,26 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q79" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select 
+            c_last_name,c_first_name,substr(s_city,1,30) sub,ss_ticket_number,amt,profit
+            from
+             (select ss_ticket_number
+                    ,ss_customer_sk
+                    ,store.s_city
+                    ,sum(ss_coupon_amt) amt
+                    ,sum(ss_net_profit) profit
+              from store_sales,date_dim,store,household_demographics
+              where store_sales.ss_sold_date_sk = date_dim.d_date_sk
+              and store_sales.ss_store_sk = store.s_store_sk  
+              and store_sales.ss_hdemo_sk = household_demographics.hd_demo_sk
+              and (household_demographics.hd_dep_count = 8 or household_demographics.hd_vehicle_count &gt; 0)
+              and date_dim.d_dow = 1
+              and date_dim.d_year in (1998,1998+1,1998+2) 
+              and store.s_number_employees between 200 and 295
+              group by ss_ticket_number,ss_customer_sk,ss_addr_sk,store.s_city) ms,customer
+              where ms.ss_customer_sk = customer.c_customer_sk
+           order by c_last_name,c_first_name,sub, profit
+          limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -990,7 +2314,20 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q82" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  i_item_id
+            ,i_item_desc
+            ,i_current_price
+      from item, inventory, date_dim, store_sales
+      where i_current_price between 30 and 30+30
+      and inv_item_sk = i_item_sk
+      and d_date_sk=inv_date_sk
+      and d_date between &apos;2002-05-30&apos; and &apos;2002-07-30&apos;
+      and i_manufact_id in (437,129,727,663)
+      and inv_quantity_on_hand between 100 and 500
+      and ss_item_sk = i_item_sk
+      group by i_item_id,i_item_desc,i_current_price
+      order by i_item_id
+      limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1004,7 +2341,70 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q83" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">with sr_items as
+            (select i_item_id item_id,
+                   sum(sr_return_quantity) sr_item_qty
+            from store_returns,
+                 item,
+                 date_dim
+            where sr_item_sk = i_item_sk
+            and   d_date    in 
+                   (select d_date
+                   from date_dim
+                   where d_week_seq in 
+                           (select d_week_seq
+                           from date_dim
+                     where d_date in (&apos;1998-01-02&apos;,&apos;1998-10-15&apos;,&apos;1998-11-10&apos;)))
+            and   sr_returned_date_sk   = d_date_sk
+            group by i_item_id),
+            cr_items as
+            (select i_item_id item_id,
+                   sum(cr_return_quantity) cr_item_qty
+            from catalog_returns,
+                 item,
+                 date_dim
+            where cr_item_sk = i_item_sk
+            and   d_date    in 
+                   (select d_date
+                   from date_dim
+                   where d_week_seq in 
+                           (select d_week_seq
+                           from date_dim
+                     where d_date in (&apos;1998-01-02&apos;,&apos;1998-10-15&apos;,&apos;1998-11-10&apos;)))
+            and   cr_returned_date_sk   = d_date_sk
+            group by i_item_id),
+            wr_items as
+            (select i_item_id item_id,
+                   sum(wr_return_quantity) wr_item_qty
+            from web_returns,
+                 item,
+                 date_dim
+            where wr_item_sk = i_item_sk
+            and   d_date    in 
+                   (select d_date
+                   from date_dim
+                   where d_week_seq in 
+                           (select d_week_seq
+                           from date_dim
+                           where d_date in (&apos;1998-01-02&apos;,&apos;1998-10-15&apos;,&apos;1998-11-10&apos;)))
+            and   wr_returned_date_sk   = d_date_sk
+            group by i_item_id)
+             select  sr_items.item_id
+                  ,sr_item_qty
+                  ,sr_item_qty/(sr_item_qty+cr_item_qty+wr_item_qty)/3.0 * 100 sr_dev
+                  ,cr_item_qty
+                  ,cr_item_qty/(sr_item_qty+cr_item_qty+wr_item_qty)/3.0 * 100 cr_dev
+                  ,wr_item_qty
+                  ,wr_item_qty/(sr_item_qty+cr_item_qty+wr_item_qty)/3.0 * 100 wr_dev
+                  ,(sr_item_qty+cr_item_qty+wr_item_qty)/3.0 average
+            from sr_items
+                ,cr_items
+                ,wr_items
+            where sr_items.item_id=cr_items.item_id
+              and sr_items.item_id=wr_items.item_id 
+            order by sr_items.item_id
+                    ,sr_item_qty
+            limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1018,7 +2418,24 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q84" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  c_customer_id as customer_id
+            ,concat(c_last_name, &apos;, &apos;, c_first_name) as customername
+      from customer
+          ,customer_address
+          ,customer_demographics
+          ,household_demographics
+          ,income_band
+          ,store_returns
+      where ca_city	        =  &apos;Hopewell&apos;
+        and customer.c_current_addr_sk = customer_address.ca_address_sk
+        and ib_lower_bound   &gt;=  32287
+        and ib_upper_bound   &lt;=  32287 + 50000
+        and income_band.ib_income_band_sk = household_demographics.hd_income_band_sk
+        and customer_demographics.cd_demo_sk = customer.c_current_cdemo_sk
+        and household_demographics.hd_demo_sk = customer.c_current_hdemo_sk
+        and store_returns.sr_cdemo_sk = customer_demographics.cd_demo_sk
+      order by customer_id
+      limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1032,21 +2449,84 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q85" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
-</stringProp>
-          <stringProp name="queryArguments"></stringProp>
-          <stringProp name="queryArgumentsTypes"></stringProp>
-          <stringProp name="variableNames"></stringProp>
-          <stringProp name="resultVariable"></stringProp>
-          <stringProp name="queryTimeout"></stringProp>
-          <stringProp name="resultSetMaxRows"></stringProp>
-          <stringProp name="resultSetHandler">Store as String</stringProp>
-        </JDBCSampler>
-        <hashTree />
-        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q86" enabled="true">
-          <stringProp name="dataSource">presto</stringProp>
-          <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  substr(r_reason_desc,1,20) as r
+            ,avg(ws_quantity) wq
+            ,avg(wr_refunded_cash) ref
+            ,avg(wr_fee) fee
+      from web_sales, web_returns, web_page, customer_demographics cd1,
+           customer_demographics cd2, customer_address, date_dim, reason 
+      where web_sales.ws_web_page_sk = web_page.wp_web_page_sk
+        and web_sales.ws_item_sk = web_returns.wr_item_sk
+        and web_sales.ws_order_number = web_returns.wr_order_number
+        and web_sales.ws_sold_date_sk = date_dim.d_date_sk and d_year = 1998
+        and cd1.cd_demo_sk = web_returns.wr_refunded_cdemo_sk 
+        and cd2.cd_demo_sk = web_returns.wr_returning_cdemo_sk
+        and customer_address.ca_address_sk = web_returns.wr_refunded_addr_sk
+        and reason.r_reason_sk = web_returns.wr_reason_sk
+        and
+        (
+         (
+          cd1.cd_marital_status = &apos;M&apos;
+          and
+          cd1.cd_marital_status = cd2.cd_marital_status
+          and
+          cd1.cd_education_status = &apos;4 yr Degree&apos;
+          and 
+          cd1.cd_education_status = cd2.cd_education_status
+          and
+          ws_sales_price between 100.00 and 150.00
+         )
+        or
+         (
+          cd1.cd_marital_status = &apos;D&apos;
+          and
+          cd1.cd_marital_status = cd2.cd_marital_status
+          and
+          cd1.cd_education_status = &apos;Primary&apos; 
+          and
+          cd1.cd_education_status = cd2.cd_education_status
+          and
+          ws_sales_price between 50.00 and 100.00
+         )
+        or
+         (
+          cd1.cd_marital_status = &apos;U&apos;
+          and
+          cd1.cd_marital_status = cd2.cd_marital_status
+          and
+          cd1.cd_education_status = &apos;Advanced Degree&apos;
+          and
+          cd1.cd_education_status = cd2.cd_education_status
+          and
+          ws_sales_price between 150.00 and 200.00
+         )
+        )
+        and
+        (
+         (
+          ca_country = &apos;United States&apos;
+          and
+          ca_state in (&apos;KY&apos;, &apos;GA&apos;, &apos;NM&apos;)
+          and ws_net_profit between 100 and 200  
+         )
+         or
+         (
+          ca_country = &apos;United States&apos;
+          and
+          ca_state in (&apos;MT&apos;, &apos;OR&apos;, &apos;IN&apos;)
+          and ws_net_profit between 150 and 300  
+         )
+         or
+         (
+          ca_country = &apos;United States&apos;
+          and
+          ca_state in (&apos;WI&apos;, &apos;MO&apos;, &apos;WV&apos;)
+          and ws_net_profit between 50 and 250  
+         )
+        )
+     group by r_reason_desc
+     order by r, wq, ref, fee
+     limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1060,7 +2540,39 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q87" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select count(*) 
+            from (select distinct c_last_name as l1, c_first_name as f1, d_date as d1
+                   from store_sales
+                    JOIN date_dim ON store_sales.ss_sold_date_sk = date_dim.d_date_sk
+                    JOIN customer ON store_sales.ss_customer_sk = customer.c_customer_sk
+                   where 
+                     d_month_seq between 1193 and 1193+11
+              ) t1
+                  LEFT OUTER JOIN
+                  ( select distinct c_last_name as l2, c_first_name as f2, d_date as d2
+                   from catalog_sales
+                    JOIN date_dim ON catalog_sales.cs_sold_date_sk = date_dim.d_date_sk
+                    JOIN customer ON catalog_sales.cs_bill_customer_sk = customer.c_customer_sk
+                   where 
+                     d_month_seq between 1193 and 1193+11
+              ) t2
+                  ON t1.l1 = t2.l2 and
+                   t1.f1 = t2.f2 and
+                   t1.d1 = t2.d2
+                  LEFT OUTER JOIN
+                  (select distinct c_last_name as l3, c_first_name as f3, d_date as d3
+                   from web_sales
+                    JOIN date_dim ON web_sales.ws_sold_date_sk = date_dim.d_date_sk
+                    JOIN customer ON web_sales.ws_bill_customer_sk = customer.c_customer_sk
+                   where 
+                     d_month_seq between 1193 and 1193+11
+              ) t3
+                  ON t1.l1 = t3.l3 and
+                   t1.f1 = t3.f3 and
+                   t1.d1 = t3.d3
+            WHERE
+                l2 is null and
+                l3 is null ;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1074,7 +2586,97 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q88" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  *
+            from
+             (select count(*) h8_30_to_9
+             from store_sales, household_demographics , time_dim, store
+             where store_sales.ss_sold_time_sk = time_dim.t_time_sk   
+                 and store_sales.ss_hdemo_sk = household_demographics.hd_demo_sk 
+                 and store_sales.ss_store_sk = store.s_store_sk
+                 and time_dim.t_hour = 8
+                 and time_dim.t_minute &gt;= 30
+                 and ((household_demographics.hd_dep_count = 3 and household_demographics.hd_vehicle_count&lt;=3+2) or
+                      (household_demographics.hd_dep_count = 0 and household_demographics.hd_vehicle_count&lt;=0+2) or
+                      (household_demographics.hd_dep_count = 1 and household_demographics.hd_vehicle_count&lt;=1+2)) 
+                 and store.s_store_name = &apos;ese&apos;) s1,
+             (select count(*) h9_to_9_30 
+             from store_sales, household_demographics , time_dim, store
+             where store_sales.ss_sold_time_sk = time_dim.t_time_sk
+                 and store_sales.ss_hdemo_sk = household_demographics.hd_demo_sk
+                 and store_sales.ss_store_sk = store.s_store_sk 
+                 and time_dim.t_hour = 9 
+                 and time_dim.t_minute &lt; 30
+                 and ((household_demographics.hd_dep_count = 3 and household_demographics.hd_vehicle_count&lt;=3+2) or
+                      (household_demographics.hd_dep_count = 0 and household_demographics.hd_vehicle_count&lt;=0+2) or
+                      (household_demographics.hd_dep_count = 1 and household_demographics.hd_vehicle_count&lt;=1+2))
+                 and store.s_store_name = &apos;ese&apos;) s2,
+             (select count(*) h9_30_to_10 
+             from store_sales, household_demographics , time_dim, store
+             where store_sales.ss_sold_time_sk = time_dim.t_time_sk
+                 and store_sales.ss_hdemo_sk = household_demographics.hd_demo_sk
+                 and store_sales.ss_store_sk = store.s_store_sk
+                 and time_dim.t_hour = 9
+                 and time_dim.t_minute &gt;= 30
+                 and ((household_demographics.hd_dep_count = 3 and household_demographics.hd_vehicle_count&lt;=3+2) or
+                      (household_demographics.hd_dep_count = 0 and household_demographics.hd_vehicle_count&lt;=0+2) or
+                      (household_demographics.hd_dep_count = 1 and household_demographics.hd_vehicle_count&lt;=1+2))
+                 and store.s_store_name = &apos;ese&apos;) s3,
+             (select count(*) h10_to_10_30
+             from store_sales, household_demographics , time_dim, store
+             where store_sales.ss_sold_time_sk = time_dim.t_time_sk
+                 and store_sales.ss_hdemo_sk = household_demographics.hd_demo_sk
+                 and store_sales.ss_store_sk = store.s_store_sk
+                 and time_dim.t_hour = 10 
+                 and time_dim.t_minute &lt; 30
+                 and ((household_demographics.hd_dep_count = 3 and household_demographics.hd_vehicle_count&lt;=3+2) or
+                      (household_demographics.hd_dep_count = 0 and household_demographics.hd_vehicle_count&lt;=0+2) or
+                      (household_demographics.hd_dep_count = 1 and household_demographics.hd_vehicle_count&lt;=1+2))
+                 and store.s_store_name = &apos;ese&apos;) s4,
+             (select count(*) h10_30_to_11
+             from store_sales, household_demographics , time_dim, store
+             where store_sales.ss_sold_time_sk = time_dim.t_time_sk
+                 and store_sales.ss_hdemo_sk = household_demographics.hd_demo_sk
+                 and store_sales.ss_store_sk = store.s_store_sk
+                 and time_dim.t_hour = 10 
+                 and time_dim.t_minute &gt;= 30
+                 and ((household_demographics.hd_dep_count = 3 and household_demographics.hd_vehicle_count&lt;=3+2) or
+                      (household_demographics.hd_dep_count = 0 and household_demographics.hd_vehicle_count&lt;=0+2) or
+                      (household_demographics.hd_dep_count = 1 and household_demographics.hd_vehicle_count&lt;=1+2))
+                 and store.s_store_name = &apos;ese&apos;) s5,
+             (select count(*) h11_to_11_30
+             from store_sales, household_demographics , time_dim, store
+             where store_sales.ss_sold_time_sk = time_dim.t_time_sk
+                 and store_sales.ss_hdemo_sk = household_demographics.hd_demo_sk
+                 and store_sales.ss_store_sk = store.s_store_sk 
+                 and time_dim.t_hour = 11
+                 and time_dim.t_minute &lt; 30
+                 and ((household_demographics.hd_dep_count = 3 and household_demographics.hd_vehicle_count&lt;=3+2) or
+                      (household_demographics.hd_dep_count = 0 and household_demographics.hd_vehicle_count&lt;=0+2) or
+                      (household_demographics.hd_dep_count = 1 and household_demographics.hd_vehicle_count&lt;=1+2))
+                 and store.s_store_name = &apos;ese&apos;) s6,
+             (select count(*) h11_30_to_12
+             from store_sales, household_demographics , time_dim, store
+             where store_sales.ss_sold_time_sk = time_dim.t_time_sk
+                 and store_sales.ss_hdemo_sk = household_demographics.hd_demo_sk
+                 and store_sales.ss_store_sk = store.s_store_sk
+                 and time_dim.t_hour = 11
+                 and time_dim.t_minute &gt;= 30
+                 and ((household_demographics.hd_dep_count = 3 and household_demographics.hd_vehicle_count&lt;=3+2) or
+                      (household_demographics.hd_dep_count = 0 and household_demographics.hd_vehicle_count&lt;=0+2) or
+                      (household_demographics.hd_dep_count = 1 and household_demographics.hd_vehicle_count&lt;=1+2))
+                 and store.s_store_name = &apos;ese&apos;) s7,
+             (select count(*) h12_to_12_30
+             from store_sales, household_demographics , time_dim, store
+             where store_sales.ss_sold_time_sk = time_dim.t_time_sk
+                 and store_sales.ss_hdemo_sk = household_demographics.hd_demo_sk
+                 and store_sales.ss_store_sk = store.s_store_sk
+                 and time_dim.t_hour = 12
+                 and time_dim.t_minute &lt; 30
+                 and ((household_demographics.hd_dep_count = 3 and household_demographics.hd_vehicle_count&lt;=3+2) or
+                      (household_demographics.hd_dep_count = 0 and household_demographics.hd_vehicle_count&lt;=0+2) or
+                      (household_demographics.hd_dep_count = 1 and household_demographics.hd_vehicle_count&lt;=1+2))
+                 and store.s_store_name = &apos;ese&apos;) s8
+            ;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1088,7 +2690,31 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q89" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  *
+            from(
+            select i_category, i_class, i_brand,
+                   s_store_name, s_company_name,
+                   d_moy,
+                   sum(ss_sales_price) sum_sales,
+                   avg(sum(ss_sales_price)) over
+                     (partition by i_category, i_brand, s_store_name, s_company_name)
+                     avg_monthly_sales
+            from item, store_sales, date_dim, store
+            where store_sales.ss_item_sk = item.i_item_sk and
+                  store_sales.ss_sold_date_sk = date_dim.d_date_sk and
+                  store_sales.ss_store_sk = store.s_store_sk and
+                  d_year in (2000) and
+                    ((i_category in (&apos;Home&apos;,&apos;Books&apos;,&apos;Electronics&apos;) and
+                      i_class in (&apos;wallpaper&apos;,&apos;parenting&apos;,&apos;musical&apos;)
+                     )
+                  or (i_category in (&apos;Shoes&apos;,&apos;Jewelry&apos;,&apos;Men&apos;) and
+                      i_class in (&apos;womens&apos;,&apos;birdal&apos;,&apos;pants&apos;) 
+                    ))
+            group by i_category, i_class, i_brand,
+                     s_store_name, s_company_name, d_moy) tmp1
+            where case when (avg_monthly_sales &lt;&gt; 0) then (abs(sum_sales - avg_monthly_sales) / avg_monthly_sales) else null end &gt; 0.1
+            order by sum_sales - avg_monthly_sales, s_store_name
+            limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1102,7 +2728,25 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q90" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  cast(amc as decimal(15,4))/cast(pmc as decimal(15,4)) am_pm_ratio
+            from ( select count(*) amc
+                  from web_sales, household_demographics , time_dim, web_page
+                  where ws_sold_time_sk = time_dim.t_time_sk
+                    and ws_ship_hdemo_sk = household_demographics.hd_demo_sk
+                    and ws_web_page_sk = web_page.wp_web_page_sk
+                    and time_dim.t_hour between 6 and 6+1
+                    and household_demographics.hd_dep_count = 8
+                    and web_page.wp_char_count between 5000 and 5200) at,
+                 ( select count(*) pmc
+                  from web_sales, household_demographics , time_dim, web_page
+                  where ws_sold_time_sk = time_dim.t_time_sk
+                    and ws_ship_hdemo_sk = household_demographics.hd_demo_sk
+                    and ws_web_page_sk = web_page.wp_web_page_sk
+                    and time_dim.t_hour between 14 and 14+1
+                    and household_demographics.hd_dep_count = 8
+                    and web_page.wp_char_count between 5000 and 5200) pt
+            order by am_pm_ratio
+            limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1116,7 +2760,34 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q91" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  
+            cc_call_center_id Call_Center,
+            cc_name Call_Center_Name,
+            cc_manager Manager,
+            sum(cr_net_loss) Returns_Loss
+    from
+            call_center,
+            catalog_returns,
+            date_dim,
+            customer,
+            customer_address,
+            customer_demographics,
+            household_demographics
+    where
+            catalog_returns.cr_call_center_sk       = call_center.cc_call_center_sk
+    and     catalog_returns.cr_returned_date_sk     = date_dim.d_date_sk
+    and     catalog_returns.cr_returning_customer_sk= customer.c_customer_sk
+    and     customer_demographics.cd_demo_sk              = customer.c_current_cdemo_sk
+    and     household_demographics.hd_demo_sk              = customer.c_current_hdemo_sk
+    and     customer_address.ca_address_sk           = customer.c_current_addr_sk
+    and     d_year                  = 1999 
+    and     d_moy                   = 11
+    and     ( (cd_marital_status       = &apos;M&apos; and cd_education_status     = &apos;Unknown&apos;)
+            or(cd_marital_status       = &apos;W&apos; and cd_education_status     = &apos;Advanced Degree&apos;))
+    and     hd_buy_potential like &apos;0-500%&apos;
+    and     ca_gmt_offset           = -7
+    group by cc_call_center_id,cc_name,cc_manager,cd_marital_status,cd_education_status
+    order by Returns_Loss desc;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1130,7 +2801,28 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q92" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">SELECT sum(case when ssci.customer_sk is not null and csci.customer_sk is null then 1
+            else 0 end) as store_only,
+sum(case when ssci.customer_sk is null and csci.customer_sk is not null then 1
+           else 0 end) as catalog_only,
+sum(case when ssci.customer_sk is not null and csci.customer_sk is not null then 1 
+            else 0 end) as store_and_catalog
+FROM (SELECT ss.ss_customer_sk as customer_sk,
+        ss.ss_item_sk as item_sk
+FROM store_sales ss
+JOIN date_dim d1 ON (ss.ss_sold_date_sk = d1.d_date_sk)
+WHERE d1.d_month_seq &gt;= 1206 and
+       d1.d_month_seq &lt;= 1217
+GROUP BY ss.ss_customer_sk, ss.ss_item_sk) ssci
+FULL OUTER JOIN (SELECT cs.cs_bill_customer_sk as customer_sk,
+                              cs.cs_item_sk as item_sk
+              FROM catalog_sales cs
+              JOIN date_dim d2 ON (cs.cs_sold_date_sk = d2.d_date_sk)
+              WHERE d2.d_month_seq &gt;= 1206 and
+                             d2.d_month_seq &lt;= 1217
+              GROUP BY cs.cs_bill_customer_sk, cs.cs_item_sk) csci
+ON (ssci.customer_sk=csci.customer_sk and
+ssci.item_sk = csci.item_sk);
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1144,7 +2836,21 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q93" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  ss_customer_sk
+            ,sum(act_sales) sumsales
+      from (select ss_item_sk
+                  ,ss_ticket_number
+                  ,ss_customer_sk
+                  ,case when sr_return_quantity is not null then (ss_quantity-sr_return_quantity)*ss_sales_price
+                                                            else (ss_quantity*ss_sales_price) end act_sales
+            from store_sales left outer join store_returns on (store_returns.sr_item_sk = store_sales.ss_item_sk
+                                                               and store_returns.sr_ticket_number = store_sales.ss_ticket_number)
+                ,reason
+            where store_returns.sr_reason_sk = reason.r_reason_sk
+              and r_reason_desc = &apos;Did not like the warranty&apos;) t
+      group by ss_customer_sk
+      order by sumsales, ss_customer_sk
+limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1158,7 +2864,19 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q96" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select  count(*) as c
+            from store_sales
+                ,household_demographics 
+                ,time_dim, store
+            where store_sales.ss_sold_time_sk = time_dim.t_time_sk   
+                and store_sales.ss_hdemo_sk = household_demographics.hd_demo_sk 
+                and store_sales.ss_store_sk = store.s_store_sk
+                and time_dim.t_hour = 8
+                and time_dim.t_minute &gt;= 30
+                and household_demographics.hd_dep_count = 5
+                and store.s_store_name = &apos;ese&apos;
+            order by c
+            limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
@@ -1172,7 +2890,27 @@ LIMIT 100
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="q97" enabled="true">
           <stringProp name="dataSource">presto</stringProp>
           <stringProp name="queryType">Select Statement</stringProp>
-          <stringProp name="query">
+          <stringProp name="query">select sum(case when ssci.customer_sk is not null and csci.customer_sk is null then 1 else 0 end) store_only
+            ,sum(case when ssci.customer_sk is null and csci.customer_sk is not null then 1 else 0 end) catalog_only
+            ,sum(case when ssci.customer_sk is not null and csci.customer_sk is not null then 1 else 0 end) store_and_catalog
+      from 
+      ( select ss_customer_sk customer_sk
+            ,ss_item_sk item_sk
+      from store_sales
+      JOIN date_dim ON store_sales.ss_sold_date_sk = date_dim.d_date_sk
+      where
+        d_month_seq between 1193 and 1193 + 11
+      group by ss_customer_sk ,ss_item_sk) ssci
+      full outer join
+      ( select cs_bill_customer_sk customer_sk
+            ,cs_item_sk item_sk
+      from catalog_sales
+      JOIN date_dim ON catalog_sales.cs_sold_date_sk = date_dim.d_date_sk
+      where
+        d_month_seq between 1193 and 1193 + 11
+      group by cs_bill_customer_sk ,cs_item_sk) csci
+      on (ssci.customer_sk=csci.customer_sk and ssci.item_sk = csci.item_sk)
+      limit 100;
 </stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
