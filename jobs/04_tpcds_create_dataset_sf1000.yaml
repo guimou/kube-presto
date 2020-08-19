@@ -1,13 +1,13 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: 03-tpcds-create-dataset-sf1000
+  name: 04-tpcds-create-dataset-sf1000
   namespace: presto
 spec:
   selector: {}
   template:
     metadata:
-      name: 03-tpcds-create-dataset-sf1000
+      name: 04-tpcds-create-dataset-sf1000
     spec:
       volumes:
         - name: shared-vol
