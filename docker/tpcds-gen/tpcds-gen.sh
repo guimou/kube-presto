@@ -19,7 +19,9 @@ touch $LOG_FILE
 exec 3>&1 1>>$LOG_FILE 2>&1
 
 # Drop previously existing schema
+echo "--------------------------------------------------" | tee /dev/fd/3
 echo "`date`: Dropping existing schema: $SCHEMA" | tee /dev/fd/3
+echo "--------------------------------------------------" | tee /dev/fd/3
 declare TABLES="$(sql_exec "SHOW TABLES FROM tpcds.sf$SCALE;" | sed s/\"//g | tr -d '\r')"
 # clean up from any previous runs.
 for tab in $TABLES; do
@@ -29,10 +31,15 @@ done
 sql_exec "DROP SCHEMA IF EXISTS $SCHEMA;"
 
 # Create schema 
+echo "--------------------------------------------------" | tee /dev/fd/3
 echo "`date`: Creating schema under location: $LOCATION" | tee /dev/fd/3
+echo "--------------------------------------------------" | tee /dev/fd/3
 sql_exec "CREATE SCHEMA $SCHEMA WITH (location = '$LOCATION');"
 
 # Create tables and generate data
+echo "--------------------------------------------------" | tee /dev/fd/3
+echo "`date`: Generating data" | tee /dev/fd/3
+echo "--------------------------------------------------" | tee /dev/fd/3
 echo "`date`: Generating $SCHEMA data" | tee /dev/fd/3
 START=`date +%s`
 for tab in $TABLES; do
@@ -45,10 +52,15 @@ for tab in $TABLES; do
 done
 END=`date +%s`
 RUNTIME=$((END-START))
+echo "--------------------------------------------------" | tee /dev/fd/3
 echo "`date`: Finished tpcds.sf$SCALE data generation. Time taken: $RUNTIME s" | tee /dev/fd/3
+echo "--------------------------------------------------" | tee /dev/fd/3
+echo " " | tee /dev/fd/3
 
 # Analyse tables
+echo "--------------------------------------------------" | tee /dev/fd/3
 echo "`date`: Analyzing tpcds.sf$SCALE tables" | tee /dev/fd/3
+echo "--------------------------------------------------" | tee /dev/fd/3
 START=`date +%s`
 for tab in $TABLES; do
     echo "Analyze $SCHEMA.$tab"  | tee /dev/fd/3
@@ -60,4 +72,6 @@ for tab in $TABLES; do
 done
 END=`date +%s`
 RUNTIME=$((END-START))
+echo "--------------------------------------------------" | tee /dev/fd/3
 echo "`date`: Finished tpcds.sf$SCALE data analysis. Time taken: $RUNTIME s" | tee /dev/fd/3
+echo "--------------------------------------------------" | tee /dev/fd/3
