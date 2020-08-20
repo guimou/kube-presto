@@ -13,7 +13,9 @@ exec 3>&1 1>>$LOG_FILE 2>&1
 REPORT_DIR="/data/reports/sf$SCALE/$(date "+%Y-%m-%d_%H:%M:%S")"
 mkdir -p $REPORT_DIR
 
+echo "--------------------------------------------------" | tee /dev/fd/3
 echo "Start JMeter test, report output to: $REPORT_DIR" | tee /dev/fd/3
+echo "--------------------------------------------------" | tee /dev/fd/3
 START=`date +%s`
 JAVA_HOME=$JAVA_HOME $JMETER_HOME/bin/jmeter \
 	-JdbUrl=jdbc:presto://$PRESTO_SERVER/hive/tpcds_sf${SCALE}_${FORMAT} \
@@ -22,5 +24,7 @@ JAVA_HOME=$JAVA_HOME $JMETER_HOME/bin/jmeter \
 	-e -o $REPORT_DIR
 END=`date +%s`
 RUNTIME=$((END-START))
+echo "--------------------------------------------------" | tee /dev/fd/3
 echo "`date`: Finished tpcds.sf$SCALE benchmark. Time taken: $RUNTIME s" | tee /dev/fd/3
+echo "--------------------------------------------------" | tee /dev/fd/3
 
