@@ -31,5 +31,5 @@ spec:
             - name: SCHEMA
               value: 'tpcds_sf$(SCALE)_$(FORMAT)'
             - name: LOCATION
-              value: 's3://presto-test-bucket/sf$(SCALE)/$(SCHEMA).db/'       
+              value: 's3://bucket-1/sf$(SCALE)/$(SCHEMA).db/'       
       restartPolicy: Never
